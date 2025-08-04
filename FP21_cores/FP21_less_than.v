@@ -29,6 +29,10 @@ input wire [`frac:0] frac_b;
 
 output reg result;
 
+/*
+Note: takes more hardware than FP21_greater_than for 
+some reason despite having the same logic.
+*/
 
 //1 pipeline stage
 always @(posedge clk) begin
