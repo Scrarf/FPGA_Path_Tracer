@@ -51,7 +51,7 @@ always @(posedge clk) begin
 
 	{1'b0, shift_prod} <= prod >> prod[(`frac*2)+1];
 	//shift_prod <= prod[(`frac*2)+1] ? prod[(`frac*2+1):1] : prod[(`frac*2):0];
-	// ^^ 2 identical lines of code logically but the first one is better.
+	//^ 2 identical lines of code logically but the first one is better.
 
 	norm_exp_c <= exp_c + {8'b0, prod[(`frac*2)+1]};
 
@@ -76,8 +76,8 @@ always @(posedge clk) begin
 	sign_c_out <= sign_c_dl3;
 	exp_c_out <= norm_exp_c_dl2;
 
-	frac_c_out <= prod_trunk_dl + {12'b0, round_up};
-
+	frac_c_out <= prod_trunk_dl + {12'b0, round_up}; 
+	//^ in this case since we are addin +1 we may or may not need another rounding step not sure yet.
 end
 
 endmodule
