@@ -8,10 +8,13 @@
 #include <queue>
 #include "functions.h"
 
+#include "VFP21_mult_FP21_mult.h"
+
 //For long error rate testing.
 //#define SIM_STEPS 1000000000
+
 //For fast confirmation
-#define SIM_STEPS 1000
+#define SIM_STEPS 100000
 
 #define PIPELINE_DELAY 5
 
@@ -25,6 +28,14 @@ struct queue_dl {
 };
 
 std::queue<queue_dl> expected_output;
+
+int error_count = 0;
+
+int sign_a, exp_a, frac_a;
+int sign_b, exp_b, frac_b;
+
+double val_a = 0;
+double val_b = 0;
 
 int main(int argc, char** argv) {
 
@@ -41,14 +52,7 @@ int main(int argc, char** argv) {
 
 		FP21_mult->clk = 0;
     	
-		int error_count = 0;
-
-		unsigned int sign_a, exp_a, frac_a;
-		unsigned int sign_b, exp_b, frac_b;
-
-		double val_a = 0;
-		double val_b = 0;
-
+		
 		while (!contextp->gotFinish()) {
 				contextp->timeInc(1);
 	
@@ -71,12 +75,12 @@ int main(int argc, char** argv) {
 				FP21_mult->frac_a = frac_a;
 				FP21_mult->frac_b = frac_b;
 
-				expected_output.push({contextp->time() + (PIPELINE_DELAY*2), val_a, val_b, val_a * val_b});
+				expected_output.push({contextp->time() + ((PIPELINE_DELAY-1)*2), val_a, val_b, val_a * val_b});
 			}
-			
-			
+
+			FP21_mult->eval();
  		  	
- 		  	if (FP21_mult->clk && contextp->time() > (PIPELINE_DELAY*2)) {
+ 		  	if (FP21_mult->clk && ((contextp->time() > ((PIPELINE_DELAY-1)*2)  ))) {
 
  		  		queue_dl expected_result = {0, 0, 0, 0};
 
@@ -108,10 +112,12 @@ int main(int argc, char** argv) {
  		  		}
 
  		  	}
+ 		  	if (FP21_mult->clk) {
+ 		  		printf("exp_c=%b\n", FP21_mult->exp_c_out);
+ 		  	}
+ 		  	
 
  		  	FP21_mult->eval();
-
- 		  	
 
 
  		  	if ((contextp->time()) > SIM_STEPS) {
@@ -119,7 +125,7 @@ int main(int argc, char** argv) {
  		  	}
  		      
 		}
-		printf("error_rate: %f%\n", (double)( (double)error_count / (double)SIM_STEPS * 100.0 * 2));
+		printf("error_rate: %f%\n", error_count / ((double)(SIM_STEPS - PIPELINE_DELAY - 1) / 2) * 100.0);
 		
 		FP21_mult->final();
 
