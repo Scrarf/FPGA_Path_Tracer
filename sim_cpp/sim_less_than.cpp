@@ -8,7 +8,11 @@
 #include <queue>
 #include "functions.h"
 
+//For long error rate testing.
 #define SIM_STEPS 1000000000
+//For fast confirmation
+//#define SIM_STEPS 1000000
+
 #define PIPELINE_DELAY 1
 
 double sc_time_stamp() { return 0; }
@@ -37,10 +41,6 @@ int main(int argc, char** argv) {
 
 		FP21_less_than->clk = 0;
     	
-		double val_a_dl = 0;
-		double val_b_dl = 0;
-		double val_a_dl2 = 0;
-		double val_b_dl2 = 0;
 
 		int error_count = 0;
 
@@ -75,9 +75,7 @@ int main(int argc, char** argv) {
 				expected_output.push({contextp->time() + (PIPELINE_DELAY*2), val_a, val_b, val_a < val_b});
 			}
 			
-	
-				
-			
+		
  		  	
  		  	if (FP21_less_than->clk && contextp->time() > (PIPELINE_DELAY*2)) {
 
@@ -109,16 +107,6 @@ int main(int argc, char** argv) {
  		  	}
 
  		  	FP21_less_than->eval();
-
- 		  	
-			
- 		  	
- 		  	
-
- 		  	
-
- 		  	//printf("%d \n", FP21_less_than->result);
-	
 
 
  		  	if ((contextp->time()) > SIM_STEPS) {
