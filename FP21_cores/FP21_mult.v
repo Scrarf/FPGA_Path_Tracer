@@ -34,7 +34,10 @@ reg [(`exp):0] exp_c;
 reg [((`frac*2)+1):0] prod;
 reg [((`frac*2)):0] shift_prod;
 reg [(`exp):0] norm_exp_c, norm_exp_c_dl, norm_exp_c_dl2;
-reg [(`frac):0] prod_trunk, prod_trunk_dl;
+
+reg [(`frac):0] prod_trunk_dl;
+reg [(`frac):0] prod_trunk;
+
 reg guard, round, sticky;
 reg round_up;
 reg sign_c_dl, sign_c_dl2, sign_c_dl3;
