@@ -9,8 +9,8 @@ clean:
 # tested and mostly works but sometimes returns very high number.
 # it could either be a verilog logic bug, overflow or cpp testbench bug.
 verilate_FP21_mult:
-	verilator -Wall --trace --cc FP21_cores/FP21_mult.v
-	verilator -Wall --trace `# --coverage ``# --vcd `--exe --build -cc sim_cpp/sim_mult.cpp FP21_cores/FP21_mult.v FP21_cores/definitions.vh
+	verilator -Wall --trace `# --public-params` `# --public-flat-rw` --cc FP21_cores/FP21_mult.v
+	verilator -Wall --trace `# --coverage ``# --vcd `--exe `# --public-flat-rw` `# --public-params` --build -cc sim_cpp/sim_mult.cpp FP21_cores/FP21_mult.v FP21_cores/definitions.vh
 	obj_dir/VFP21_mult
 	`# gtkwave top_result.vcd`
 
