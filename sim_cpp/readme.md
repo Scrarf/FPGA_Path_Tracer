@@ -1,0 +1,1 @@
+I am not a C++ programmer. While code may be hard to read it works most of the time.
