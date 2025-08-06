@@ -11,10 +11,10 @@
 #include "VFP21_mult_FP21_mult.h"
 
 //For long error rate testing.
-//#define SIM_STEPS 1000000000
+#define SIM_STEPS 1000000000
 
 //For fast confirmation
-#define SIM_STEPS 100000
+//#define SIM_STEPS 100000
 
 #define PIPELINE_DELAY 5
 
@@ -109,7 +109,7 @@ int main(int argc, char** argv) {
  		  			ans_to_double);
 
  		  			error_count++;
- 		  			printf("exp_c=%b\n", FP21_mult->exp_c_out);
+ 		  			printf("sign_c=%b exp_c=%b frac_c=%b\n",FP21_mult->sign_c_out, FP21_mult->exp_c_out, FP21_mult->frac_c_out);
  		  		}
 
  		  		
