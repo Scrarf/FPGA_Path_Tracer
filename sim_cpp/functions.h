@@ -5,7 +5,16 @@
 #define EXP 8
 #define FRAC 12
 
+int sign_extend_exp(int exp) {
+    int shift = 32 - EXP;
+    return (exp << shift) >> shift;
+}
+
+
 double to_double(int sign, int exp, int frac) {
+
+    exp = sign_extend_exp(exp);
+
     double value;
     value = (double)frac / (1 << FRAC);
     value = value * pow(2, exp);
