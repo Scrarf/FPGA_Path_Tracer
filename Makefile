@@ -6,7 +6,7 @@ verilate_FP21_mult:
 	verilator -Wall --trace `# --public-params` `# --public-flat-rw` --cc FP21_cores/FP21_mult.v
 	verilator -Wall --trace `# --coverage ``# --vcd `--exe `# --public-flat-rw` `# --public-params` --build -cc sim_cpp/sim_mult.cpp FP21_cores/FP21_mult.v FP21_cores/definitions.vh
 	obj_dir/VFP21_mult
-	
+
 yosys_FP21_mult:
 	yosys -p 'synth_ecp5 -json yosys_json/yosys_FP21_mult.json' FP21_cores/FP21_mult.v
 
