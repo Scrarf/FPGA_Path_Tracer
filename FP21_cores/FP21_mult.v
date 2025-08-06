@@ -1,9 +1,14 @@
+`include "FP21_cores/definitions.vh"
+
 /*
 Inputs are unpacked arrays.
 Only works for Normalized non special case numbers.
 */
 
-`include "FP21_cores/definitions.vh"
+/*
+Works perfectly so far according to testbench.
+May need optimisation later.
+*/
 
 
 module FP21_mult (
@@ -33,16 +38,18 @@ reg sign_c;
 reg [(`exp):0] exp_c;
 reg [((`frac*2)+1):0] prod;
 reg [((`frac*2)):0] shift_prod;
-reg [(`exp):0] norm_exp_c, norm_exp_c_dl, norm_exp_c_dl2;
+reg [(`exp):0] norm_exp_c, norm_exp_c_dl, norm_exp_c_dl2, norm_exp_c_dl3;
 
 reg [(`frac):0] prod_trunk_dl;
 reg [(`frac):0] prod_trunk;
 
 reg guard, round, sticky;
 reg round_up;
-reg sign_c_dl, sign_c_dl2, sign_c_dl3;
+reg sign_c_dl, sign_c_dl2, sign_c_dl3, sign_c_dl4;
 
-//5 pipeline stages.
+reg [(`frac + 1):0] frac_c_rounded;
+
+//6 pipeline stages.
 always @(posedge clk) begin
 	/*===========================================================*/
 	sign_c <= sign_a ^ sign_b;
@@ -76,11 +83,16 @@ always @(posedge clk) begin
 	round_up <= guard & (round | sticky | prod_trunk[0]);
 
 	/*===========================================================*/
-	sign_c_out <= sign_c_dl3;
-	exp_c_out <= norm_exp_c_dl2;
+	sign_c_dl4 <= sign_c_dl3;
+	norm_exp_c_dl3 <= norm_exp_c_dl2;
 
-	frac_c_out <= prod_trunk_dl + {12'b0, round_up}; 
-	//^ in this case since we are addin +1 we may or may not need another rounding step not sure yet.
+	frac_c_rounded <= prod_trunk_dl + {12'b0, round_up}; 
+
+	/*===========================================================*/
+	sign_c_out <= sign_c_dl4;
+	exp_c_out <= norm_exp_c_dl3 + {8'b0, frac_c_rounded[`frac+1]};
+
+	{1'b0, frac_c_out} <= frac_c_rounded >> frac_c_rounded[`frac+1];
 end
 
 endmodule
