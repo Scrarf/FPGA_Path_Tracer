@@ -1,2 +1,4 @@
 json/
 obj_dir/
+timing/
+nextpnr_output/
