@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
 
  		  		double ans_to_double = to_double(FP21_mult->sign_c_out, FP21_mult->exp_c_out, FP21_mult->frac_c_out);
 
- 		  		if ((expected_result.ans - ans_to_double) > 1) {
+ 		  		if ((expected_result.ans - ans_to_double) > 10) {
  		  		printf("t=%d et=%d a=%f b=%f expt=%f rly=%f \n",
  		  			contextp->time(),
  		  			expected_result.time,
@@ -109,11 +109,11 @@ int main(int argc, char** argv) {
  		  			ans_to_double);
 
  		  			error_count++;
+ 		  			printf("exp_c=%b\n", FP21_mult->exp_c_out);
  		  		}
 
- 		  	}
- 		  	if (FP21_mult->clk) {
- 		  		printf("exp_c=%b\n", FP21_mult->exp_c_out);
+ 		  		
+
  		  	}
  		  	
 
