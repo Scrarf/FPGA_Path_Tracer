@@ -35,3 +35,7 @@ verilate_FP21_less_than: #tested but gives error_rate: 0.002265% die to precisio
 	obj_dir/VFP21_less_than
 
 
+verilate_sixteen_bit_LZC:
+	verilator -Wall --trace --cc FP21_cores/sixteen_bit_LZC.v
+	verilator -Wall --trace `# --coverage ``# --vcd `--exe --build -cc sim_cpp/sim_sixteen_bit_LZC.cpp FP21_cores/sixteen_bit_LZC.v
+	obj_dir/Vsixteen_bit_LZC
