@@ -6,10 +6,8 @@ verilate_FP21_mult:
 	verilator -Wall --trace --cc FP21_cores/FP21_mult.v
 	verilator -Wall --trace --exe `# --public-params` --build -cc sim_cpp/sim_mult.cpp FP21_cores/FP21_mult.v FP21_cores/definitions.vh
 	obj_dir/VFP21_mult
-
 yosys_FP21_mult:
 	yosys -p 'synth_ecp5 -json yosys_json/yosys_FP21_mult.json' FP21_cores/FP21_mult.v
-
 nextpnr_FP21_mult:
 	nextpnr-ecp5 --85k --package CABGA381 --speed 7 \
 	--json yosys_json/yosys_FP21_mult.json \
@@ -30,6 +28,12 @@ verilate_FP21_greater_than: #tested but gives error_rate: 0.002248% due to preci
 	verilator -Wall --trace --cc FP21_cores/FP21_greater_than.v
 	verilator -Wall --trace --exe --build -cc sim_cpp/sim_greater_than.cpp FP21_cores/FP21_greater_than.v
 	obj_dir/VFP21_greater_than
+yosys_FP21_greater_than:
+	yosys -p 'synth_ecp5 -json yosys_json/yosys_FP21_greater_than.json' FP21_cores/FP21_greater_than.v
+nextpnr_FP21_greater_than:
+	nextpnr-ecp5 --85k --package CABGA381 --speed 7 \
+	--json yosys_json/yosys_FP21_greater_than.json \
+	--freq 48
 
 
 
@@ -51,5 +55,12 @@ verilate_sixteen_bit_LZC:
 
 verilate_FP21_add:
 	verilator -Wall --trace --cc FP21_cores/FP21_add.v FP21_cores/sixteen_bit_LZC.v
-	verilator -Wall --trace --exe `# --public-params` --build -cc sim_cpp/sim_add.cpp FP21_cores/FP21_mult.v FP21_cores/sixteen_bit_LZC.v FP21_cores/definitions.vh
+	verilator -Wall --trace --exe`# --public-params` --build -cc --top-module FP21_add \
+	sim_cpp/sim_add.cpp FP21_cores/FP21_add.v FP21_cores/sixteen_bit_LZC.v FP21_cores/definitions.vh
 	obj_dir/VFP21_add
+yosys_FP21_add:
+	yosys -p 'synth_ecp5 -json yosys_json/yosys_FP21_add.json' FP21_cores/FP21_add.v
+nextpnr_FP21_add:
+	nextpnr-ecp5 --85k --package CABGA381 --speed 7 \
+	--json yosys_json/yosys_FP21_add.json \
+	--freq 48
