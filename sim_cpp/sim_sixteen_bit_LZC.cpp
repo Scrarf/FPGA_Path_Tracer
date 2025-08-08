@@ -33,7 +33,7 @@ int error_count = 0;
 unsigned int array = 0;
 
 unsigned int random_LZC(unsigned int* out) {
-    unsigned int array = rand() & 0xFFFF;  // 16-bit mask
+    unsigned int array = rand() & 0xFFFF;
     *out = 0;
 
     for (int i = 15; i >= 0; i--) {
