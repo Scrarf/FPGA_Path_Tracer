@@ -1,3 +1,10 @@
+/*
+Leading zero counter.
+
+When all 16 bits are 0 the output stil returns 15.
+This is fine since we are doing barel shifting anyway.
+*/
+
 
 module sixteen_bit_LZC (
     input wire clk,
@@ -40,7 +47,7 @@ assign q[0] = (~x[1] | x[2]) & (~x[3]);
 endmodule
 /* verilator lint_on DECLFILENAME */
 
-/* verilator lint_off UNUSEDSIGNAL */
+
 module four_bit_LZE (
     input wire [3:0] x,
     output reg [1:0] q
@@ -50,7 +57,7 @@ assign q[1] = x[3] &  x[2];
 assign q[0] = (x[3] & ~x[2]) | (x[3] & x[2] & x[1] & ~x[0]) | &x;
 
 endmodule
-/* verilator lint_on UNUSEDSIGNAL */
+
 
 module four_to_one_mux (
     input wire [3:0] in,
