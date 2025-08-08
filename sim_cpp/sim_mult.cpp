@@ -11,10 +11,10 @@
 #include "VFP21_mult_FP21_mult.h"
 
 //For long error rate testing.
-#define SIM_STEPS 1000000000
+//#define SIM_STEPS 1000000000
 
 //For fast confirmation
-//#define SIM_STEPS 1000000
+#define SIM_STEPS 100000
 
 #define PIPELINE_DELAY 6
 
@@ -62,10 +62,10 @@ int main(int argc, char** argv) {
 	
 			if (FP21_mult->clk) {
 
-				val_a = random_double(-10.0, 10.0);
+				val_a = random_double(-0.000001, 0.000001);
 				to_int(val_a, &sign_a, &exp_a, &frac_a);
 					
-				val_b = random_double(-10.0, 10.0);
+				val_b = random_double(-0.000001, 0.000001);
 				to_int(val_b, &sign_b, &exp_b, &frac_b);
 
 				FP21_mult->sign_a = sign_a;
@@ -99,8 +99,8 @@ int main(int argc, char** argv) {
 
  		  		double ans_to_double = to_double(FP21_mult->sign_c_out, FP21_mult->exp_c_out, FP21_mult->frac_c_out);
 
- 		  		if ((expected_result.ans - ans_to_double) > 0.1) {
- 		  		printf("t=%d et=%d a=%f b=%f expt=%f rly=%f \n",
+ 		  		if ((expected_result.ans - ans_to_double) > 0.0000000000000001) {
+ 		  		printf("t=%d et=%d a=%.16lf b=%.16lf expt=%.16lf rly=%.16lf \n",
  		  			contextp->time(),
  		  			expected_result.time,
  		  			expected_result.a,
