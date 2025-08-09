@@ -49,7 +49,7 @@ reg [`frac:0] frac_normalized_trunk, frac_normalized_trunk_round;
 reg round_up;
 
 
-sixteen_bit_LZC LZC(.clk(clk), .array(frac_combined_abs[(`frac*2)+2:(`frac*2)-13]), .value(lzc));
+sixteen_bit_LZC LZC(.clk(clk), .array(frac_combined_abs[(`frac*2)+3:(`frac*2)-12]), .value(lzc));
 reg [3:0] lzc;
 
 //11 pipeline stages
@@ -85,6 +85,7 @@ always @(posedge clk) begin
 	exp_greater_dl3 <= exp_greater_dl2;
 
 	frac_shifted_inverted <= sign_xor_dl2 ? (~{1'b0, frac_shifted} + 1'b1) : {1'b0, frac_shifted};
+
 	frac_to_be_bypassed_dl3 <= frac_to_be_bypassed_dl2;
 
 	sign_c <= sign_xor_dl2 ? (({frac_to_be_bypassed_dl2, `frac'b0, 1'b0} > frac_shifted) ? sign_a_dl3 : ~sign_a_dl3) : sign_a_dl3;
@@ -93,14 +94,14 @@ always @(posedge clk) begin
 
 	exp_greater_dl4 <= exp_greater_dl3;
 
-	frac_combined <= {2'b0, frac_to_be_bypassed_dl3, `frac'b0} + {frac_shifted_inverted[(`frac*2)+2], 1'b0, frac_shifted_inverted[(`frac*2)+1:0]};
+	frac_combined <= {2'b0, frac_to_be_bypassed_dl3, `frac'b0, 1'b0} + {frac_shifted_inverted[(`frac*2)+2], 1'b0, frac_shifted_inverted[(`frac*2)+1:0]};
 
 	sign_c_dl <= sign_c;
 
 	/*===========================================================*/
 	exp_greater_dl5 <= exp_greater_dl4;
 
-	frac_combined_abs <= frac_combined[(`frac*2)+2] ? (~frac_combined + 1'b1) : frac_combined;
+	frac_combined_abs <= frac_combined[(`frac*2)+3] ? (~frac_combined + 1'b1) : frac_combined;
 
 	sign_c_dl2 <= sign_c_dl;
 
@@ -112,9 +113,9 @@ always @(posedge clk) begin
 
 	/*===========================================================*/
 
-	exp_greater_normalized <= (exp_greater_dl6 - {5'b0, lzc}) + 1;
+	exp_greater_normalized <= (exp_greater_dl6 - {5'b0, lzc}) + 2;
 	
-	frac_normalized <= (lzc < 1) ? frac_combined_abs_dl >> (1 - lzc) : frac_combined_abs_dl << (lzc - 1); //UNUSED SIGNAL WARNING
+	frac_normalized <= frac_combined_abs_dl << lzc; //UNUSED SIGNAL WARNING
 	//frac_normalized <= frac_combined_abs_dl >> lzc;
 
 	sign_c_dl4 <= sign_c_dl3;
@@ -123,7 +124,7 @@ always @(posedge clk) begin
 	exp_greater_normalized_dl <= exp_greater_normalized;
 	round_up <= frac_normalized[`frac+1] & (frac_normalized[`frac] | |frac_normalized[`frac-1:0] | frac_normalized[`frac+1]);
 	//may need normalization after guard round sticky.
-	frac_normalized_trunk <= frac_normalized[(`frac*2)+1:(`frac+1)];
+	frac_normalized_trunk <= frac_normalized[(`frac*2)+3:(`frac+3)];
 
 	sign_c_dl5 <= sign_c_dl4;
 
