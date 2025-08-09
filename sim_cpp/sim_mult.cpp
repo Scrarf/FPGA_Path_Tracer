@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
 
  		  		double ans_to_double = to_double(FP21_mult->sign_c_out, FP21_mult->exp_c_out, FP21_mult->frac_c_out);
 
- 		  		if ((expected_result.ans - ans_to_double) > 0.0000000000000001) {
+ 		  		if (abs(expected_result.ans - ans_to_double) > 0.0000000000000001) {
  		  		printf("t=%d et=%d a=%.16lf b=%.16lf expt=%.16lf rly=%.16lf \n",
  		  			contextp->time(),
  		  			expected_result.time,
