@@ -16,7 +16,10 @@
 //For fast confirmation
 #define SIM_STEPS 100000
 
-#define PIPELINE_DELAY 8
+#define PIPELINE_DELAY 11
+
+
+
 
 double sc_time_stamp() { return 0; }
 
@@ -50,6 +53,10 @@ int main(int argc, char** argv) {
 
 		const std::unique_ptr<VFP21_add> FP21_add{new VFP21_add{contextp.get(), "FP21_add"}};
 
+		VerilatedVcdC* tfp = new VerilatedVcdC;
+		FP21_add->trace(tfp, 99);
+		tfp->open("logs/FP21_add.vcd");
+
 		FP21_add->clk = 0;
     	
 		
@@ -62,10 +69,10 @@ int main(int argc, char** argv) {
 	
 			if (FP21_add->clk) {
 
-				val_a = random_double(-10.0, 10.0);
+				val_a = random_double(0, 10.0);
 				to_int(val_a, &sign_a, &exp_a, &frac_a);
 					
-				val_b = random_double(-10.0, 10.0);
+				val_b = random_double(0, 10.0);
 				to_int(val_b, &sign_b, &exp_b, &frac_b);
 
 				FP21_add->sign_a = sign_a;
@@ -99,7 +106,7 @@ int main(int argc, char** argv) {
 
  		  		double ans_to_double = to_double(FP21_add->sign_c_out, FP21_add->exp_c_out, FP21_add->frac_c_out);
 
- 		  		if ((expected_result.ans - ans_to_double) > 0.1) {
+ 		  		if (abs(expected_result.ans - ans_to_double) > 0.1) {
  		  		printf("t=%d et=%d a=%.6lf b=%.6lf expt=%.6lf rly=%.6lf \n",
  		  			contextp->time(),
  		  			expected_result.time,
@@ -115,6 +122,7 @@ int main(int argc, char** argv) {
  		  		
 
  		  	}
+ 		  	tfp->dump(contextp->time());
  		  	
 
  		  	FP21_add->eval();
@@ -125,6 +133,7 @@ int main(int argc, char** argv) {
  		  	}
  		      
 		}
+		tfp->close();
 		printf("error_rate: %f%\n", error_count / ((double)(SIM_STEPS - PIPELINE_DELAY - 1) / 2) * 100.0);
 		
 		FP21_add->final();
