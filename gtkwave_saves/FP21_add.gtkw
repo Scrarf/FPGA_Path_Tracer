@@ -1,0 +1,59 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Sat Aug  9 13:57:04 2025
+[*]
+[dumpfile] "/home/scrarf/projects/FPGA_Path_Tracer/logs/FP21_add.vcd"
+[dumpfile_mtime] "Sat Aug  9 13:46:20 2025"
+[dumpfile_size] 31369066
+[savefile] "/home/scrarf/projects/FPGA_Path_Tracer/logs/FP21_add.gtkw"
+[timestart] 1
+[size] 1176 713
+[pos] 30 -151
+*-4.000000 32 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] FP21_add.
+[sst_width] 316
+[signals_width] 384
+[sst_expanded] 1
+[sst_vpaned_height] 191
+@28
+FP21_add.clk
+FP21_add.FP21_add.frac_a[12:0]
+FP21_add.FP21_add.frac_b[12:0]
+@200
+-
+@28
+FP21_add.FP21_add.frac_to_be_shifted[12:0]
+FP21_add.FP21_add.frac_to_be_bypassed[12:0]
+@200
+-
+@28
+FP21_add.FP21_add.frac_shifted[25:0]
+@200
+-
+@28
+FP21_add.FP21_add.frac_shifted_inverted[26:0]
+@200
+-
+@22
+FP21_add.FP21_add.frac_combined[27:0]
+@200
+-
+@22
+FP21_add.FP21_add.frac_combined_abs[27:0]
+@200
+-
+@22
+FP21_add.FP21_add.frac_normalized[27:0]
+FP21_add.FP21_add.lzc[3:0]
+@200
+-
+@22
+FP21_add.FP21_add.frac_normalized_trunk[12:0]
+@200
+-
+@22
+FP21_add.FP21_add.frac_normalized_trunk_round[12:0]
+@200
+-
+[pattern_trace] 1
+[pattern_trace] 0
