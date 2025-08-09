@@ -58,7 +58,8 @@ verilate_FP21_add:
 	verilator -Wall --trace --exe`# --public-params` --build -cc --top-module FP21_add \
 	sim_cpp/sim_add.cpp FP21_cores/FP21_add.v FP21_cores/sixteen_bit_LZC.v FP21_cores/definitions.vh
 	obj_dir/VFP21_add
-	gtkwave logs/FP21_add.vcd
+gtkwave_FP21_add:
+	gtkwave logs/FP21_add.vcd gtkwave_saves/FP21_add.gtkw
 yosys_FP21_add:
 	yosys -p 'synth_ecp5 -json yosys_json/yosys_FP21_add.json' FP21_cores/FP21_add.v FP21_cores/sixteen_bit_LZC.v
 nextpnr_FP21_add:
