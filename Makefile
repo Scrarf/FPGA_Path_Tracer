@@ -11,7 +11,7 @@ yosys_FP21_mult:
 nextpnr_FP21_mult:
 	nextpnr-ecp5 --85k --package CABGA381 --speed 7 \
 	--json yosys_json/yosys_FP21_mult.json \
-	--freq 48
+	--freq 48  2>&1 | tee timing/nextpnr_FP21_mult.log
 
 
 
@@ -63,6 +63,6 @@ gtkwave_FP21_add:
 yosys_FP21_add:
 	yosys -p 'synth_ecp5 -json yosys_json/yosys_FP21_add.json' FP21_cores/FP21_add.v FP21_cores/sixteen_bit_LZC.v
 nextpnr_FP21_add:
-	nextpnr-ecp5 --85k --package CABGA381 --speed 7 \
+	nextpnr-ecp5 --85k --package CABGA381 --speed 7 --detailed-timing-report \
 	--json yosys_json/yosys_FP21_add.json \
-	--freq 48
+	--freq 48 2>&1 | tee timing/nextpnr_FP21_add.log
