@@ -33,7 +33,7 @@ yosys_FP21_greater_than:
 nextpnr_FP21_greater_than:
 	nextpnr-ecp5 --85k --package CABGA381 --speed 7 \
 	--json yosys_json/yosys_FP21_greater_than.json \
-	--freq 48
+	--freq 48 2>&1 | tee timing/nextpnr_FP21_greater_than.log
 
 
 
@@ -41,7 +41,12 @@ verilate_FP21_less_than: #tested but gives error_rate: 0.002265% die to precisio
 	verilator -Wall --trace --cc FP21_cores/FP21_less_than.v
 	verilator -Wall --trace --exe --build -cc sim_cpp/sim_less_than.cpp FP21_cores/FP21_less_than.v
 	obj_dir/VFP21_less_than
-
+yosys_FP21_less_than:
+	yosys -p 'synth_ecp5 -json yosys_json/yosys_FP21_less_than.json' FP21_cores/FP21_less_than.v
+nextpnr_FP21_less_than:
+	nextpnr-ecp5 --85k --package CABGA381 --speed 7 \
+	--json yosys_json/yosys_FP21_less_than.json \
+	--freq 48 2>&1 | tee timing/nextpnr_FP21_less_than.log
 
 
 

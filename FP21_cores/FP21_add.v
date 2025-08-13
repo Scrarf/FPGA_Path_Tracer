@@ -36,17 +36,11 @@ reg [`exp:0] exp_diff, exp_diff_abs, exp_greater, exp_greater_dl, exp_greater_dl
 reg [`exp:0] exp_greater_normalized, exp_greater_normalized_dl, exp_greater_normalized_dl2;
 reg sign_xor, sign_xor_dl, sign_xor_dl2;
 reg sign_c, sign_c_dl, sign_c_dl2, sign_c_dl3, sign_c_dl4, sign_c_dl5, sign_c_dl6, sign_c_dl7, sign_c_dl8, sign_c_dl9;
-
 reg [`frac:0] frac_to_be_shifted, frac_to_be_shifted_dl, frac_to_be_bypassed, frac_to_be_bypassed_dl, frac_to_be_bypassed_dl2, frac_to_be_bypassed_dl3;
-
 reg [(`frac*2)+1:0] frac_shifted;
 reg [(`frac*2)+3:0] frac_shifted_inverted;
-
-/* verilator lint_off UNUSEDSIGNAL */
-reg [(`frac*2)+3:0] frac_combined, frac_combined_abs, frac_combined_abs_dl, frac_normalized;
-/* verilator lint_on UNUSEDSIGNAL */
-
-reg [`frac:0] frac_normalized_trunk;
+reg [(`frac*2)+3:0] frac_combined, frac_combined_abs, frac_combined_abs_dl;
+reg [`frac:0] frac_normalized_trunk, frac_normalized;
 reg [`frac+1:0] frac_normalized_trunk_rounded;
 
 reg round_up, round, guard, sticky;
@@ -119,7 +113,7 @@ always @(posedge clk) begin
 	/*===========================================================*/
 	exp_greater_normalized <= (exp_greater_dl6 - {5'b0, lzc}) + 2;
 	
-	frac_normalized <= frac_combined_abs_dl << lzc; //UNUSED SIGNAL WARNING
+	frac_normalized <= {frac_combined_abs_dl << lzc}[(`frac*2)+3:(`frac+3)]; //UNUSED SIGNAL WARNING
 
 	guard <= {(frac_combined_abs_dl << lzc)}[`frac+2];
 	round <= {(frac_combined_abs_dl << lzc)}[`frac+1];
@@ -130,12 +124,11 @@ always @(posedge clk) begin
 	/*===========================================================*/
 	exp_greater_normalized_dl <= exp_greater_normalized;
 
-	round_up <= guard & (round | sticky | frac_normalized[0]);
-	//may need normalization after guard round sticky.
-	frac_normalized_trunk <= frac_normalized[(`frac*2)+3:(`frac+3)];
+	frac_normalized_trunk <= frac_normalized;
 
 	sign_c_dl8 <= sign_c_dl7;
 
+	round_up <= guard & (round | sticky | frac_normalized[0]);
 	/*===========================================================*/
 	exp_greater_normalized_dl2 <= exp_greater_normalized_dl;
 
@@ -189,4 +182,5 @@ Info:                   DCSC:       0/      2     0%
 Info:             TRELLIS_FF:     399/  83640     0%
 Info:           TRELLIS_COMB:     765/  83640     0%
 Info:           TRELLIS_RAMW:       0/  10455     0%
+
 */

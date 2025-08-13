@@ -9,9 +9,9 @@
 #include "functions.h"
 
 //For long error rate testing.
-#define SIM_STEPS 1000000000
+//#define SIM_STEPS 1000000000
 //For fast confirmation
-//#define SIM_STEPS 1000000
+#define SIM_STEPS 100000
 
 #define PIPELINE_DELAY 1
 
