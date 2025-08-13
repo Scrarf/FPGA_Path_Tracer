@@ -18,9 +18,6 @@
 
 #define PIPELINE_DELAY 11
 
-
-
-
 double sc_time_stamp() { return 0; }
 
 struct queue_dl {
@@ -53,9 +50,12 @@ int main(int argc, char** argv) {
 
 		const std::unique_ptr<VFP21_add> FP21_add{new VFP21_add{contextp.get(), "FP21_add"}};
 
-		//VerilatedVcdC* tfp = new VerilatedVcdC;
-		//FP21_add->trace(tfp, 99);
-		//tfp->open("logs/FP21_add.vcd");
+
+		//VCD dump
+
+		/*VerilatedVcdC* tfp = new VerilatedVcdC;
+		FP21_add->trace(tfp, 99);
+		tfp->open("logs/FP21_add.vcd");*/
 
 		FP21_add->clk = 0;
     	
@@ -69,12 +69,12 @@ int main(int argc, char** argv) {
 	
 			if (FP21_add->clk) {
 
-				val_a = random_double(0, 10.0);
-				//val_a = 2.0;
+				val_a = random_double(-100.0, 100.0);
+				//val_a = 4.0;
 				to_int(val_a, &sign_a, &exp_a, &frac_a);
 					
-				val_b = random_double(0, 10.0);
-				//val_b = 4.0;
+				val_b = random_double(-100.0, 100.0);
+				//val_b = -4.0;
 				to_int(val_b, &sign_b, &exp_b, &frac_b);
 
 				FP21_add->sign_a = sign_a;
@@ -120,10 +120,9 @@ int main(int argc, char** argv) {
  		  			error_count++;
  		  			printf("sign_c=%b exp_c=%b frac_c=%b\n",FP21_add->sign_c_out, FP21_add->exp_c_out, FP21_add->frac_c_out);
  		  		}
-
- 		  		
-
  		  	}
+
+ 		  	//VCD dump
  		  	//tfp->dump(contextp->time());
  		  	
 
@@ -135,6 +134,8 @@ int main(int argc, char** argv) {
  		  	}
  		      
 		}
+
+		//VCD dump
 		//tfp->close();
 		printf("error_rate: %f%\n", error_count / ((double)(SIM_STEPS - PIPELINE_DELAY - 1) / 2) * 100.0);
 		
