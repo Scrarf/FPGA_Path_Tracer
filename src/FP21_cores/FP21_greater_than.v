@@ -1,4 +1,4 @@
-`include "FP21_cores/definitions.vh"
+`include "src/FP21_cores/definitions.vh"
 
 /*
 Tested but gives error_rate: 0.0022% due to precision errors.

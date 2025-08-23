@@ -1,6 +1,5 @@
 #include <memory>
 #include <verilated.h>
-#include "../obj_dir/VFP21_greater_than.h"
 #include <verilated_vcd_c.h>
 #include <math.h>
 #include <stdio.h>
@@ -8,12 +7,15 @@
 #include <queue>
 #include "functions.h"
 
+#include "VFP21_mult.h"
+
 //For long error rate testing.
 //#define SIM_STEPS 1000000000
+
 //For fast confirmation
 #define SIM_STEPS 100000
 
-#define PIPELINE_DELAY 1
+#define PIPELINE_DELAY 6
 
 double sc_time_stamp() { return 0; }
 
@@ -21,10 +23,18 @@ struct queue_dl {
 	int time;
 	double a;
 	double b;
-	bool ans;
+	double ans;
 };
 
 std::queue<queue_dl> expected_output;
+
+int error_count = 0;
+
+int sign_a, exp_a, frac_a;
+int sign_b, exp_b, frac_b;
+
+double val_a = 0;
+double val_b = 0;
 
 int main(int argc, char** argv) {
 
@@ -37,55 +47,48 @@ int main(int argc, char** argv) {
 		contextp->traceEverOn(true);
 		contextp->commandArgs(argc, argv);
 
-		const std::unique_ptr<VFP21_greater_than> FP21_greater_than{new VFP21_greater_than{contextp.get(), "FP21_greater_than"}};
+		const std::unique_ptr<VFP21_mult> FP21_mult{new VFP21_mult{contextp.get(), "FP21_mult"}};
 
-		FP21_greater_than->clk = 0;
+		FP21_mult->clk = 0;
     	
-
-		int error_count = 0;
-
-		int sign_a, exp_a, frac_a;
-		int sign_b, exp_b, frac_b;
-
-		double val_a = 0;
-		double val_b = 0;
-
+		
 		while (!contextp->gotFinish()) {
 				contextp->timeInc(1);
 	
-			FP21_greater_than->clk = !FP21_greater_than->clk;
+			FP21_mult->clk = !FP21_mult->clk;
 
 			
 	
-			if (FP21_greater_than->clk) {
+			if (FP21_mult->clk) {
 
-				val_a = random_double(-100.0, 100.0);
+				val_a = random_double(-0.000001, 0.000001);
 				to_int(val_a, &sign_a, &exp_a, &frac_a);
 					
-				val_b = random_double(-100.0, 100.0);
+				val_b = random_double(-0.000001, 0.000001);
 				to_int(val_b, &sign_b, &exp_b, &frac_b);
 
-				FP21_greater_than->sign_a = sign_a;
-				FP21_greater_than->sign_b = sign_b;
-				FP21_greater_than->exp_a = exp_a;
-				FP21_greater_than->exp_b = exp_b;
-				FP21_greater_than->frac_a = frac_a;
-				FP21_greater_than->frac_b = frac_b;
+				FP21_mult->sign_a = sign_a;
+				FP21_mult->sign_b = sign_b;
+				FP21_mult->exp_a = exp_a;
+				FP21_mult->exp_b = exp_b;
+				FP21_mult->frac_a = frac_a;
+				FP21_mult->frac_b = frac_b;
 
-				expected_output.push({contextp->time() + (PIPELINE_DELAY*2), val_a, val_b, val_a > val_b});
+				expected_output.push({contextp->time() + ((PIPELINE_DELAY-1)*2), val_a, val_b, val_a * val_b});
 			}
-			
-				
+
+			FP21_mult->eval();
  		  	
- 		  	if (FP21_greater_than->clk && contextp->time() > (PIPELINE_DELAY*2)) {
+ 		  	if (FP21_mult->clk && ((contextp->time() > ((PIPELINE_DELAY-1)*2)  ))) {
 
  		  		queue_dl expected_result = {0, 0, 0, 0};
 
  		  		if (!expected_output.empty()) {
  		  			expected_result = expected_output.front();
  		  			expected_output.pop();
+ 		  			//printf("queue_size=%d\n", expected_output.size());
  		  		} else {
- 		  			printf("QUEUE_IS_EMPTY");
+ 		  			printf("QUEUE_IS_EMPTY\n");
  		  			contextp->gotFinish(true);
  		  		}
  		  		if (expected_result.time != contextp->time()) {
@@ -93,20 +96,27 @@ int main(int argc, char** argv) {
  		  			contextp->gotFinish(true);
  		  		}
 
- 		  		if (expected_result.ans != FP21_greater_than->result) {
- 		  		printf("time=%d val_a=%f val_b=%f expectation=%d reality=%d \n",
+ 		  		double ans_to_double = to_double(FP21_mult->sign_c_out, FP21_mult->exp_c_out, FP21_mult->frac_c_out);
+
+ 		  		if (abs(expected_result.ans - ans_to_double) > 0.0000000000000001) {
+ 		  		printf("t=%d et=%d a=%.16lf b=%.16lf expt=%.16lf rly=%.16lf \n",
  		  			contextp->time(),
+ 		  			expected_result.time,
  		  			expected_result.a,
  		  			expected_result.b,
  		  			expected_result.ans,
- 		  			FP21_greater_than->result);
+ 		  			ans_to_double);
 
  		  			error_count++;
+ 		  			printf("sign_c=%b exp_c=%b frac_c=%b\n",FP21_mult->sign_c_out, FP21_mult->exp_c_out, FP21_mult->frac_c_out);
  		  		}
 
- 		  	}
+ 		  		
 
- 		  	FP21_greater_than->eval();
+ 		  	}
+ 		  	
+
+ 		  	FP21_mult->eval();
 
 
  		  	if ((contextp->time()) > SIM_STEPS) {
@@ -114,10 +124,9 @@ int main(int argc, char** argv) {
  		  	}
  		      
 		}
-		printf("error_rate: %f%\n", (double)( (double)error_count / (double)SIM_STEPS * 100.0 * 2));
-		//error_rate: 0.002265%
+		printf("error_rate: %f%\n", error_count / ((double)(SIM_STEPS - PIPELINE_DELAY - 1) / 2) * 100.0);
 		
-		FP21_greater_than->final();
+		FP21_mult->final();
 
 		//Coverage analysis (--coverage)
 		#if VM_COVERAGE

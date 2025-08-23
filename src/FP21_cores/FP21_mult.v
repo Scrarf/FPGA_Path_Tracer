@@ -1,4 +1,4 @@
-`include "FP21_cores/definitions.vh"
+`include "src/FP21_cores/definitions.vh"
 
 /*
 Inputs are unpacked arrays.

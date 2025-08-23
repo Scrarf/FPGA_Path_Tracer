@@ -1,12 +1,13 @@
 #include <memory>
 #include <verilated.h>
-#include "../obj_dir/VFP21_less_than.h"
 #include <verilated_vcd_c.h>
 #include <math.h>
 #include <stdio.h>
 #include <random>
 #include <queue>
 #include "functions.h"
+
+#include "VFP21_greater_than.h"
 
 //For long error rate testing.
 //#define SIM_STEPS 1000000000
@@ -37,9 +38,9 @@ int main(int argc, char** argv) {
 		contextp->traceEverOn(true);
 		contextp->commandArgs(argc, argv);
 
-		const std::unique_ptr<VFP21_less_than> FP21_less_than{new VFP21_less_than{contextp.get(), "FP21_less_than"}};
+		const std::unique_ptr<VFP21_greater_than> FP21_greater_than{new VFP21_greater_than{contextp.get(), "FP21_greater_than"}};
 
-		FP21_less_than->clk = 0;
+		FP21_greater_than->clk = 0;
     	
 
 		int error_count = 0;
@@ -53,11 +54,11 @@ int main(int argc, char** argv) {
 		while (!contextp->gotFinish()) {
 				contextp->timeInc(1);
 	
-			FP21_less_than->clk = !FP21_less_than->clk;
+			FP21_greater_than->clk = !FP21_greater_than->clk;
 
 			
 	
-			if (FP21_less_than->clk) {
+			if (FP21_greater_than->clk) {
 
 				val_a = random_double(-100.0, 100.0);
 				to_int(val_a, &sign_a, &exp_a, &frac_a);
@@ -65,19 +66,19 @@ int main(int argc, char** argv) {
 				val_b = random_double(-100.0, 100.0);
 				to_int(val_b, &sign_b, &exp_b, &frac_b);
 
-				FP21_less_than->sign_a = sign_a;
-				FP21_less_than->sign_b = sign_b;
-				FP21_less_than->exp_a = exp_a;
-				FP21_less_than->exp_b = exp_b;
-				FP21_less_than->frac_a = frac_a;
-				FP21_less_than->frac_b = frac_b;
+				FP21_greater_than->sign_a = sign_a;
+				FP21_greater_than->sign_b = sign_b;
+				FP21_greater_than->exp_a = exp_a;
+				FP21_greater_than->exp_b = exp_b;
+				FP21_greater_than->frac_a = frac_a;
+				FP21_greater_than->frac_b = frac_b;
 
-				expected_output.push({contextp->time() + (PIPELINE_DELAY*2), val_a, val_b, val_a < val_b});
+				expected_output.push({contextp->time() + (PIPELINE_DELAY*2), val_a, val_b, val_a > val_b});
 			}
 			
-		
+				
  		  	
- 		  	if (FP21_less_than->clk && contextp->time() > (PIPELINE_DELAY*2)) {
+ 		  	if (FP21_greater_than->clk && contextp->time() > (PIPELINE_DELAY*2)) {
 
  		  		queue_dl expected_result = {0, 0, 0, 0};
 
@@ -93,20 +94,20 @@ int main(int argc, char** argv) {
  		  			contextp->gotFinish(true);
  		  		}
 
- 		  		if (expected_result.ans != FP21_less_than->result) {
+ 		  		if (expected_result.ans != FP21_greater_than->result) {
  		  		printf("time=%d val_a=%f val_b=%f expectation=%d reality=%d \n",
  		  			contextp->time(),
  		  			expected_result.a,
  		  			expected_result.b,
  		  			expected_result.ans,
- 		  			FP21_less_than->result);
+ 		  			FP21_greater_than->result);
 
  		  			error_count++;
  		  		}
 
  		  	}
 
- 		  	FP21_less_than->eval();
+ 		  	FP21_greater_than->eval();
 
 
  		  	if ((contextp->time()) > SIM_STEPS) {
@@ -117,7 +118,7 @@ int main(int argc, char** argv) {
 		printf("error_rate: %f%\n", (double)( (double)error_count / (double)SIM_STEPS * 100.0 * 2));
 		//error_rate: 0.002265%
 		
-		FP21_less_than->final();
+		FP21_greater_than->final();
 
 		//Coverage analysis (--coverage)
 		#if VM_COVERAGE
