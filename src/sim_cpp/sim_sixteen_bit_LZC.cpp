@@ -11,10 +11,10 @@
 #include "Vsixteen_bit_LZC.h"
 
 //For long error rate testing.
-#define SIM_STEPS 1000000000
+//#define SIM_STEPS 1000000000
 
 //For fast confirmation
-//#define SIM_STEPS 1000000
+#define SIM_STEPS 1000000
 
 #define PIPELINE_DELAY 1
 
@@ -52,12 +52,10 @@ int main(int argc, char** argv) {
 		printf("LETS START!!! WEEEE!!!!!\n");
 
 		const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
-
 		contextp->debug(0);
 		contextp->randReset(2);
 		contextp->traceEverOn(true);
 		contextp->commandArgs(argc, argv);
-
 		const std::unique_ptr<Vsixteen_bit_LZC> sixteen_bit_LZC{new Vsixteen_bit_LZC{contextp.get(), "sixteen_bit_LZC"}};
 
 		sixteen_bit_LZC->clk = 0;
@@ -68,11 +66,8 @@ int main(int argc, char** argv) {
 	
 			sixteen_bit_LZC->clk = !sixteen_bit_LZC->clk;
 
-			
-	
 			if (sixteen_bit_LZC->clk) {
 
-				
 				unsigned int value = 0;
 				sixteen_bit_LZC->array = random_LZC(&value);
 
@@ -110,10 +105,7 @@ int main(int argc, char** argv) {
  		  			error_count++;
  		  		}
 
- 		  		
-
  		  	}
- 		  	
 
  		  	sixteen_bit_LZC->eval();
 
@@ -129,8 +121,8 @@ int main(int argc, char** argv) {
 
 		//Coverage analysis (--coverage)
 		#if VM_COVERAGE
- 		  Verilated::mkdir("logs");
- 		  contextp->coveragep()->write("logs/coverage.dat");
+ 		  	//Verilated::mkdir("logs");
+ 		  	contextp->coveragep()->write("logs/coverage/coverage.dat");
 		#endif
 
 		contextp->statsPrintSummary();
