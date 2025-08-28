@@ -1,5 +1,7 @@
 `include "FP21_cores/definitions.vh"
 
+//needs to be tested.
+
 module FP21_special_case_check (
 	FP_21,
 

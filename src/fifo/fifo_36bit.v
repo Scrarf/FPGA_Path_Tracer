@@ -1,5 +1,6 @@
 /*
 FIFO with the word size of 36 bits and depth of 512.
+WORK IN PROGRESS
 */
 
 module fifo_36bit (

@@ -1,5 +1,7 @@
 `include "FP21_cores/definitions.vh"
 
+//needs to add support for denormalized FP values (if exp = -126, then leading frac bit = 0)
+
 module FP21_unpack(
     FP21_in,
 
