@@ -1,7 +1,9 @@
 /*
-FIFO with the word size of 36 bits and depth of 512.
+Asynchronous FIFO with the word size of 36 bits and depth of 512.
 WORK IN PROGRESS
 */
+
+//following http://www.sunburst-design.com/papers/CummingsSNUG2002SJ_FIFO1.pdf
 
 module fifo_36bit (
 	wr_clk,
