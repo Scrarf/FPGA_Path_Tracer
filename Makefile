@@ -87,3 +87,9 @@ verilate_fifo_36bit_sync:
 	verilator -Wall --trace --exe --build -cc \
 	src/sim_cpp/sim_fifo_36bit_sync.cpp src/fifo/fifo_36bit_sync.v
 	obj_dir/Vfifo_36bit_sync
+yosys_fifo_36bit_sync:
+	yosys -p 'synth_ecp5 -json $(yosys_json_dir)yosys_fifo_36bit_sync.json' src/fifo/fifo_36bit_sync.v
+nextpnr_fifo_36bit_sync:
+	nextpnr-ecp5 --85k --package $(package) --speed $(speed_grade) \
+	--json $(yosys_json_dir)yosys_fifo_36bit_sync.json \
+	--freq $(freq) 2>&1 | tee $(timing_dir)nextpnr_fifo_36bit_sync.log
