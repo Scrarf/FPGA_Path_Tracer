@@ -84,6 +84,6 @@ nextpnr_FP21_add:
 
 verilate_fifo_36bit_sync:
 	verilator -Wall --trace --cc src/fifo/fifo_36bit_sync.v
-	verilator -Wall --trace --exe --build -cc --top_module fifo_36bit_sync.v \
-	src/sim_cpp/sim_fifo_36bi_sync.cpp src/fifo/fifo_36bit_sync.v
+	verilator -Wall --trace --exe --build -cc \
+	src/sim_cpp/sim_fifo_36bit_sync.cpp src/fifo/fifo_36bit_sync.v
 	obj_dir/Vfifo_36bit_sync
