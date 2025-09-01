@@ -6,7 +6,7 @@ WORK IN PROGRESS
 //following https://mohammedsahil.weebly.com/uploads/1/2/8/5/12851579/fifo_report.pdf
 
 // NOT YET VERIFIED!!!
-module fifo_36bit_sync_ecp5 (
+module fifo_36bit_sync (
     input clk,
     input rst,
 
