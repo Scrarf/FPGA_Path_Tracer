@@ -7,7 +7,7 @@ speed_grade = 7
 timing_dir = logs/timing/
 yosys_json_dir = yosys_json/
 
-sim_skeleton = src/sim_cpp/verilator_skeleton/verilator_skeleton.cpp 
+sim_skeleton_dir = src/sim_cpp/verilator_skeleton/verilator_skeleton.cpp 
 
 clean:
 	rm -f *.vvp *.vcd *.json
@@ -16,7 +16,7 @@ clean:
 verilate_FP21_mult:
 	verilator -Wall --trace --cc src/FP21_cores/FP21_mult.v
 	verilator -Wall --trace --exe  --build -cc src/sim_cpp/sim_mult.cpp \
-	$(sim_skeleton) \
+	$(sim_skeleton_dir) \
 	src/FP21_cores/FP21_mult.v src/FP21_cores/definitions.vh
 	obj_dir/VFP21_mult
 yosys_FP21_mult:
@@ -72,7 +72,10 @@ verilate_sixteen_bit_LZC:
 verilate_FP21_add:
 	verilator -Wall --trace --cc src/FP21_cores/FP21_add.v src/FP21_cores/sixteen_bit_LZC.v
 	verilator -Wall --trace --exe`# --public-params` --build -cc --top-module FP21_add \
-	src/sim_cpp/sim_add.cpp src/FP21_cores/FP21_add.v src/FP21_cores/sixteen_bit_LZC.v src/FP21_cores/definitions.vh
+	src/sim_cpp/sim_add.cpp $(sim_skeleton_dir)\
+	src/FP21_cores/FP21_add.v \
+	src/FP21_cores/sixteen_bit_LZC.v \
+	src/FP21_cores/definitions.vh
 	obj_dir/VFP21_add
 gtkwave_FP21_add:
 	gtkwave logs/vcd/FP21_add.vcd gtkwave_saves/FP21_add.gtkw
@@ -82,6 +85,10 @@ nextpnr_FP21_add:
 	nextpnr-ecp5 --85k --package $(package) --speed $(speed_grade) `# --detailed-timing-report `\
 	--json $(yosys_json_dir)yosys_FP21_add.json \
 	--freq $(freq) 2>&1 | tee $(timing_dir)nextpnr_FP21_add.log
+
+
+
+
 
 verilate_fifo_36bit_sync:
 	verilator -Wall --trace --cc src/fifo/fifo_36bit_sync.v
