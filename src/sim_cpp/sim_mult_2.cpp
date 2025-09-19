@@ -7,10 +7,9 @@
 #include "verilator_skeleton/verilator_if.h"
 
 #define CLOCK_HIGH (dut->clk)
-#define CLOCK_LOW (!dut->clk)
 
-int SIM_STEPS = 1000;
-int PIPELINE_DELAY = 7;
+int SIM_STEPS = 10000000;
+int PIPELINE_DELAY = 6;
 
 struct expected_result {
     int time;
@@ -26,10 +25,10 @@ static std::queue<expected_result> expected_output;
 
 void tb_init(VerilatedContext* contextp) {
     dut = new VFP21_mult(contextp, "FP21_mult");
-    dut->clk = 0;
+    dut->clk = 1;
 }
 
-void tb_eval(VerilatedContext* contextp, int* error_count) {
+void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count) {
     dut->clk = !dut->clk;
 
     if (CLOCK_HIGH) {
@@ -46,20 +45,17 @@ void tb_eval(VerilatedContext* contextp, int* error_count) {
         dut->frac_a = frac_a;
         dut->frac_b = frac_b;
 
-        expected_output.push({(int)contextp->time() + ((PIPELINE_DELAY - 1) * 2), val_a, val_b, val_a * val_b});
+        expected_output.push({(int)contextp->time() + ((PIPELINE_DELAY) * 2), val_a, val_b, val_a * val_b});
     }
 
-    
+    if (CLOCK_HIGH && contextp->time() > ((PIPELINE_DELAY) * 2)) {
+        if (expected_output.empty()) {printf("QUEUE_IS_EMPTY!\n"); };
 
-    if (CLOCK_HIGH && contextp->time() > ((PIPELINE_DELAY - 1) * 2)) {
-        if (expected_output.empty()) {
-            printf("QUEUE_IS_EMPTY!\n");
-        };
         auto expected = expected_output.front();
         expected_output.pop();
 
         if (expected.time != contextp->time()) {
-            printf("SYNC_ERROR!\n");
+            printf("SYNC_ERROR!\n expected:%d, contextp:%d.\n", expected.time, contextp->time());
             contextp->gotFinish(true);
             return;
         }
@@ -71,13 +67,14 @@ void tb_eval(VerilatedContext* contextp, int* error_count) {
                    contextp->time(), expected.a, expected.b, expected.ans, got);
             (*error_count)++;
         }
+        (*itteration_count)++;
 
     
     }
     dut->eval();
 }
 
-void tb_report() {
+void tb_end() {
     dut->final();
     delete dut;
     return;

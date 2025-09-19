@@ -7,6 +7,7 @@ speed_grade = 7
 timing_dir = logs/timing/
 yosys_json_dir = yosys_json/
 
+sim_skeleton = src/sim_cpp/verilator_skeleton/verilator_skeleton.cpp 
 
 clean:
 	rm -f *.vvp *.vcd *.json
@@ -26,9 +27,8 @@ nextpnr_FP21_mult:
 
 verilate_FP21_mult_2:
 	verilator -Wall --trace --cc src/FP21_cores/FP21_mult.v
-	verilator -Wall --trace --exe  --build -cc \
-	src/sim_cpp/sim_mult_2.cpp \
-	src/sim_cpp/verilator_skeleton/verilator_skeleton.cpp \
+	verilator -Wall --trace --exe  --build -cc src/sim_cpp/sim_mult_2.cpp \
+	$(sim_skeleton) \
 	src/FP21_cores/FP21_mult.v src/FP21_cores/definitions.vh
 	obj_dir/VFP21_mult
 
