@@ -15,7 +15,9 @@ clean:
 
 verilate_FP21_mult:
 	verilator -Wall --trace --cc src/FP21_cores/FP21_mult.v
-	verilator -Wall --trace --exe `# --public-params` --build -cc src/sim_cpp/sim_mult.cpp src/FP21_cores/FP21_mult.v src/FP21_cores/definitions.vh
+	verilator -Wall --trace --exe  --build -cc src/sim_cpp/sim_mult.cpp \
+	$(sim_skeleton) \
+	src/FP21_cores/FP21_mult.v src/FP21_cores/definitions.vh
 	obj_dir/VFP21_mult
 yosys_FP21_mult:
 	yosys -p 'synth_ecp5 -json $(yosys_json_dir)yosys_FP21_mult.json' src/FP21_cores/FP21_mult.v
@@ -23,16 +25,6 @@ nextpnr_FP21_mult:
 	nextpnr-ecp5 --85k --package $(package) --speed $(speed_grade) \
 	--json $(yosys_json_dir)yosys_FP21_mult.json \
 	--freq $(freq) 2>&1 | tee $(timing_dir)nextpnr_FP21_mult.log
-
-
-verilate_FP21_mult_2:
-	verilator -Wall --trace --cc src/FP21_cores/FP21_mult.v
-	verilator -Wall --trace --exe  --build -cc src/sim_cpp/sim_mult_2.cpp \
-	$(sim_skeleton) \
-	src/FP21_cores/FP21_mult.v src/FP21_cores/definitions.vh
-	obj_dir/VFP21_mult
-
-
 
 
 
