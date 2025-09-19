@@ -15,15 +15,13 @@
 //For fast confirmation
 #define SIM_STEPS 100000
 
-#define PIPELINE_DELAY 1
-
-//no need for VCD dump since multiplication is simple enough
+#define PIPELINE_DELAY 10
 
 double sc_time_stamp() { return 0; }
 
 struct str{
 	int time, val;
-}
+};
 
 std::queue<str> expected_output;
 
@@ -50,6 +48,8 @@ int main(int argc, char** argv) {
 			contextp->timeInc(1);
 	
 		fifo_36bit_sync->clk = !fifo_36bit_sync->clk;
+		fifo_36bit_sync->rd_en = 0;
+		fifo_36bit_sync->wr_en = 0;
 
 		
 	
@@ -58,6 +58,7 @@ int main(int argc, char** argv) {
 			val_a = val_a++;
 
 			fifo_36bit_sync->wr_data = val_a;
+			fifo_36bit_sync->wr_en = 1;
 
 			expected_output.push({contextp->time() + ((PIPELINE_DELAY-1)*2), val_a});
 		}
@@ -65,7 +66,7 @@ int main(int argc, char** argv) {
 		fifo_36bit_sync->eval();
  	  	
  	  	if (fifo_36bit_sync->clk && ((contextp->time() > ((PIPELINE_DELAY-1)*2)  ))) {
-
+ 	  		str expected_result;
 
  	  		if (!expected_output.empty()) {
  	  			expected_result = expected_output.front();
@@ -82,14 +83,15 @@ int main(int argc, char** argv) {
 
  	  		
 
- 	  		if (abs(expected_result.ans - ans_to_double) > 0.1) {
- 	  		printf("t=%d val=%d",
- 	  			contextp->time,
+ 	  		//if (abs(expected_result.ans - ans_to_double) > 0.1) {
+ 	  			printf("t=%d val=%d\n",
+ 	  			contextp->time(),
  	  			fifo_36bit_sync->rd_data);
 
- 	  			error_count++;
- 	  			printf("sign_c=%b exp_c=%b frac_c=%b\n",fifo_36bit_sync->sign_c_out, fifo_36bit_sync->exp_c_out, fifo_36bit_sync->frac_c_out);
- 	  		}
+ 	  			fifo_36bit_sync->rd_en = 1;
+
+ 	  			//error_count++;
+ 	  		//}
 
  	  	}
  	  	
@@ -102,13 +104,12 @@ int main(int argc, char** argv) {
  	  	}
  	  	
 	}
-	printf("error_rate: %f%\n", error_count / ((double)(SIM_STEPS - PIPELINE_DELAY - 1) / 2) * 100.0);
+	//printf("error_rate: %f%\n", error_count / ((double)(SIM_STEPS - PIPELINE_DELAY - 1) / 2) * 100.0);
 	
 	fifo_36bit_sync->final();
 
 	//Coverage analysis (--coverage)
 	#if VM_COVERAGE
- 	  	//Verilated::mkdir("logs");
  	  	contextp->coveragep()->write("logs/coverage/coverage.dat");
 	#endif
 

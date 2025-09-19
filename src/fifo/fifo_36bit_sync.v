@@ -29,9 +29,8 @@ wire equal = (wr_ptr[8:0] == rd_ptr[8:0]);
 assign empty = equal && (wr_ptr[9] == rd_ptr[9]);
 assign full = equal && (wr_ptr[9] != rd_ptr[9]);
 
-
 always @(posedge clk) begin
-	if (wr_en && !full) memory[wr_ptr[8:0]] <= wr_data; 
+	if (wr_en && !full) memory[wr_ptr[8:0]] <= wr_data;
 	rd_data <= memory[rd_ptr[8:0]];
 end
 
