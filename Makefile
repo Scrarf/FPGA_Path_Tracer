@@ -24,6 +24,15 @@ nextpnr_FP21_mult:
 	--freq $(freq) 2>&1 | tee $(timing_dir)nextpnr_FP21_mult.log
 
 
+verilate_FP21_mult_2:
+	verilator -Wall --trace --cc src/FP21_cores/FP21_mult.v
+	verilator -Wall --trace --exe  --build -cc \
+	src/sim_cpp/sim_mult_2.cpp \
+	src/sim_cpp/verilator_skeleton/verilator_skeleton.cpp \
+	src/FP21_cores/FP21_mult.v src/FP21_cores/definitions.vh
+	obj_dir/VFP21_mult
+
+
 
 
 
@@ -93,3 +102,16 @@ nextpnr_fifo_36bit_sync:
 	nextpnr-ecp5 --85k --package $(package) --speed $(speed_grade) \
 	--json $(yosys_json_dir)yosys_fifo_36bit_sync.json \
 	--freq $(freq) 2>&1 | tee $(timing_dir)nextpnr_fifo_36bit_sync.log
+
+verilate_cross_product_component:
+	verilator -Wall --trace --cc src/ray_triangle_intersection/operations/cross_product_component.v \
+	src/FP21_cores/FP21_mult.v src/FP21_cores/FP21_add.v \
+	src/FP21_cores/sixteen_bit_LZC.v 
+	verilator -Wall --trace --exe --build -cc \
+	src/sim_cpp/cross_product_component.cpp \
+	src/ray_triangle_intersection/operations/cross_product_component.v \
+	src/FP21_cores/FP21_mult.v src/FP21_cores/FP21_add.v \
+	src/FP21_cores/sixteen_bit_LZC.v 
+	obj_dir/Vfifo_36bit_sync
+
+
