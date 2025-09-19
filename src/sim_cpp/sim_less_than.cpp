@@ -61,15 +61,14 @@ void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count
             return;
         }
 
-        double got = dut->result;
+        bool got = dut->result;
 
-        if (expected.ans != got) {
-            printf("Mismatch at t=%d: %.4f < %.4f = %.4d (got %.4d)\n",
+        if ((expected.ans != got)) {
+            printf("Mismatch at t=%d: %.4f < %.4f = %d (got %d)\n",
                    contextp->time(), expected.a, expected.b, expected.ans, got);
             (*error_count)++;
         }
         (*itteration_count)++;
-
     
     }
     dut->eval();
