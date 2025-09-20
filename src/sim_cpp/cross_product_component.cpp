@@ -1,153 +1,98 @@
 #include <memory>
-#include <verilated.h>
-#include <verilated_vcd_c.h>
-#include <math.h>
-#include <stdio.h>
-#include <random>
 #include <queue>
+#include <cmath>
+#include <cstdio>
 #include "functions.h"
-
 #include "Vcross_product_component.h"
+#include "verilator_skeleton/verilator_if.h"
 
-//For long error rate testing.
-//#define SIM_STEPS 1000000000
+#define CLOCK_HIGH (dut->clk)
 
-//For fast confirmation
-#define SIM_STEPS 100000
+int SIM_STEPS = 10000000;
+int PIPELINE_DELAY = 6;
 
-#define PIPELINE_DELAY 18
-
-//no need for VCD dump since multiplication is simple enough
-
-double sc_time_stamp() { return 0; }
-
-struct queue_dl {
-	int time;
-	double a;
-	double b;
-	double ans;
+struct expected_result {
+    int time;
+    double a, b, c, d, ans;
 };
 
-std::queue<queue_dl> expected_output;
+static int sign_a, exp_a, frac_a;
+static int sign_b, exp_b, frac_b;
+static double val_a, val_b;
 
-int error_count;
-int sign_a, exp_a, frac_a;
-int sign_b, exp_b, frac_b;
-double val_a, val_b;
+static Vcross_product_component* dut;
+static std::queue<expected_result> expected_output;
 
-int main(int argc, char** argv) {
-
-	printf("LETS START!!! WEEEE!!!!!\n");
-
-	const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
-
-	contextp->debug(0);
-	contextp->randReset(2);
-	contextp->traceEverOn(true);
-	contextp->commandArgs(argc, argv);
-
-	const std::unique_ptr<Vcross_product_component> cross_product_component{new Vcross_product_component{contextp.get(), "cross_product_component"}};
-
-	cross_product_component->clk = 0;
-    
-	
-	while (!contextp->gotFinish()) {
-			contextp->timeInc(1);
-	
-		cross_product_component->clk = !cross_product_component->clk;
-
-		
-	
-		if (cross_product_component->clk) {
-
-			val_a = random_double(-10, 10);
-			to_int(val_a, &sign_a, &exp_a, &frac_a);
-				
-			val_b = random_double(-10, 10);
-			to_int(val_b, &sign_b, &exp_b, &frac_b);
-
-			val_c = random_double(-10, 10);
-			to_int(val_c, &sign_c, &exp_c, &frac_c);
-				
-			val_d = random_double(-10, 10);
-			to_int(val_d, &sign_d, &exp_d, &frac_d);
-
-			cross_product_component->sign_a = sign_a;
-			cross_product_component->sign_b = sign_b;
-			ross_product_component->sign_b = sign_c;
-			ross_product_component->sign_b = sign_d;
-
-			cross_product_component->exp_a = exp_a;
-			cross_product_component->exp_b = exp_b;
-			cross_product_component->exp_b = exp_c;
-			cross_product_component->exp_b = exp_d;
-
-			cross_product_component->frac_a = frac_a;
-			cross_product_component->frac_b = frac_b;
-			cross_product_component->frac_a = frac_c;
-			cross_product_component->frac_a = frac_d;
-
-			expected_output.push({contextp->time() + ((PIPELINE_DELAY-1)*2), val_a, val_b, val_a * val_b});
-		}
-
-		cross_product_component->eval();
- 	  	
- 	  	if (cross_product_component->clk && ((contextp->time() > ((PIPELINE_DELAY-1)*2)  ))) {
-
- 	  		queue_dl expected_result = {0, 0, 0, 0};
-
- 	  		if (!expected_output.empty()) {
- 	  			expected_result = expected_output.front();
- 	  			expected_output.pop();
- 	  			//printf("queue_size=%d\n", expected_output.size());
- 	  		} else {
- 	  			printf("QUEUE_IS_EMPTY\n");
- 	  			contextp->gotFinish(true);
- 	  		}
- 	  		if (expected_result.time != contextp->time()) {
- 	  			printf("SYNCHRONIZATION_ERROR!\n");
- 	  			contextp->gotFinish(true);
- 	  		}
-
- 	  		double ans_to_double = to_double(cross_product_component->sign_c_out, cross_product_component->exp_c_out, cross_product_component->frac_c_out);
-
- 	  		if (abs(expected_result.ans - ans_to_double) > 0.1) {
- 	  		printf("t=%d et=%d a=%.16lf b=%.16lf expt=%.16lf rly=%.16lf \n",
- 	  			contextp->time(),
- 	  			expected_result.time,
- 	  			expected_result.a,
- 	  			expected_result.b,
- 	  			expected_result.ans,
- 	  			ans_to_double);
-
- 	  			error_count++;
- 	  			printf("sign_c=%b exp_c=%b frac_c=%b\n",cross_product_component->sign_c_out, cross_product_component->exp_c_out, cross_product_component->frac_c_out);
- 	  		}
-
- 	  		
-
- 	  	}
- 	  	
-
- 	  	cross_product_component->eval();
-
-
- 	  	if ((contextp->time()) > SIM_STEPS) {
- 	  		contextp->gotFinish(true);
- 	  	}
- 	  	
-	}
-	printf("error_rate: %f%\n", error_count / ((double)(SIM_STEPS - PIPELINE_DELAY - 1) / 2) * 100.0);
-	
-	cross_product_component->final();
-
-	//Coverage analysis (--coverage)
-	#if VM_COVERAGE
- 	  	//Verilated::mkdir("logs");
- 	  	contextp->coveragep()->write("logs/coverage/coverage.dat");
-	#endif
-
-	contextp->statsPrintSummary();
-
-	return 0;
+void tb_init(VerilatedContext* contextp) {
+    dut = new Vcross_product_component(contextp, "cross_product_component");
+    dut->clk = 1;
 }
+
+void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count) {
+    dut->clk = !dut->clk;
+
+    if (CLOCK_HIGH) {
+        val_a = random_double(-10, 10);
+        to_int(val_a, &sign_a, &exp_a, &frac_a);
+
+        val_b = random_double(-10, 10);
+        to_int(val_b, &sign_b, &exp_b, &frac_b);
+
+        val_c = random_double(-10, 10);
+        to_int(val_c, &sign_c, &exp_c, &frac_c);
+
+        val_d = random_double(-10, 10);
+        to_int(val_d, &sign_d, &exp_d, &frac_d);
+
+        dut->sign_a = sign_a;
+        dut->sign_b = sign_b;
+        dut->sign_b = sign_c;
+        dut->sign_b = sign_d;
+
+        dut->exp_a = exp_a;
+        dut->exp_b = exp_b;
+        dut->exp_b = exp_c;
+        dut->exp_b = exp_d;
+
+        dut->frac_a = frac_a;
+        dut->frac_b = frac_b;
+        dut->frac_a = frac_c;
+        dut->frac_a = frac_d;
+
+        expected_output.push({(int)contextp->time() + ((PIPELINE_DELAY) * 2), val_a, val_b, val_c, val_d,
+        											   (val_a * val_b) - (val_c * val_d)});
+    }
+
+    if (CLOCK_HIGH && contextp->time() > ((PIPELINE_DELAY) * 2)) {
+        if (expected_output.empty()) {printf("QUEUE_IS_EMPTY!\n"); };
+
+        auto expected = expected_output.front();
+        expected_output.pop();
+
+        if (expected.time != contextp->time()) {
+            printf("SYNC_ERROR!\n expected:%d, contextp:%d.\n", expected.time, contextp->time());
+            contextp->gotFinish(true);
+            return;
+        }
+
+        double got = to_double(dut->sign_c_out, dut->exp_c_out, dut->frac_c_out);
+
+        if (fabs(expected.ans - got) > 0.1) {
+            printf("Mismatch at t=%d: (%.4f * %.4f) - (%.4f * %.4f) = %.4f (got %.4f)\n",
+                   contextp->time(), expected.a, expected.b, expected.c, expected.d, expected.ans, got);
+            (*error_count)++;
+        }
+        (*itteration_count)++;
+
+    
+    }
+    dut->eval();
+}
+
+void tb_end() {
+    dut->final();
+    delete dut;
+    return;
+}
+
+
