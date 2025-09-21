@@ -1,4 +1,4 @@
-`include "src/FP21_cores/definitions.vh"
+`include "src/arithmetic_cores/definitions.vh"
 
 /*
 Inputs are unpacked arrays.
@@ -8,36 +8,12 @@ Needs propper zero handling at least.
 The module is pipelined.
 */
 
-/*module add (
-	clk,
-	sign_a,
-	sign_b,
-	frac_a,
-	frac_b,
-	exp_a,
-	exp_b,
-
-	sign_c_out,
-	exp_c_out,
-	frac_c_out
-);*/
-
 module add (
 	input wire clk,
 	input u_float a,
 	input u_float b,
 	output u_float c
 );
-
-/*input wire sign_a, sign_b;
-input wire signed [`exp:0] exp_a, exp_b;
-input wire [`frac:0] frac_a, frac_b;
-input wire clk;
-
-output reg sign_c_out;
-output reg [`exp:0] exp_c_out;
-output reg [`frac:0] frac_c_out;
-*/
 
 reg [`exp:0] exp_diff, exp_diff_abs, exp_greater, exp_greater_dl, exp_greater_dl2, exp_greater_dl3, exp_greater_dl4, exp_greater_dl5, exp_greater_dl6;
 reg [`exp:0] exp_greater_normalized, exp_greater_normalized_dl, exp_greater_normalized_dl2;
@@ -52,7 +28,7 @@ reg [`frac+1:0] frac_normalized_trunk_rounded;
 
 reg round_up, round, guard, sticky;
 
-sixteen_bit_LZC LZC(.clk(clk), .array(frac_combined_abs[(`frac*2)+3:(`frac*2)-12]), .value(lzc));
+sixteen_bit_lzc LZC(.clk(clk), .array(frac_combined_abs[(`frac*2)+3:(`frac*2)-12]), .value(lzc));
 reg [3:0] lzc;
 
 wire exp_comparison = $signed(a.exp) > $signed(b.exp);

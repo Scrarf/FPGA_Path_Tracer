@@ -12,7 +12,7 @@
 
 #define CLOCK_HIGH (dut->clk)
 
-int SIM_STEPS = 1000000000;
+int SIM_STEPS = 10000000;
 int PIPELINE_DELAY = 11;
 
 struct expected_result {
@@ -20,8 +20,6 @@ struct expected_result {
     double a, b, c;
 };
 
-//static int sign_a, exp_a, frac_a;
-//static int sign_b, exp_b, frac_b;
 static double val_a, val_b;
 
 u_float a, b;
@@ -52,8 +50,6 @@ void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count
 
         //val_a = -7.9996;
         //val_b = -1.8995;
-
-        //to_int(val_b, &b.sign, &b.exp, &b.frac);
 
         dut->a = double_to_packed_array(val_a);
         dut->b = double_to_packed_array(val_b);

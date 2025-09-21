@@ -6,7 +6,7 @@ This is fine since we are doing barel shifting anyway.
 */
 
 
-module sixteen_bit_LZC (
+module sixteen_bit_lzc (
     input wire clk,
     input wire [15:0] array,
     output reg [3:0] value

@@ -7,24 +7,24 @@ SPEED_GRADE = 7
 TIMING_DIR = logs/timing/
 YOSYS_JSON_DIR = yosys_json/
 SIM_SKELETON_DIR = src/sim_cpp/verilator_skeleton/verilator_skeleton.cpp 
-VERILOG_DEPENDENCY_DIR = -y src/FP21_cores \
+VERILOG_DEPENDENCY_DIR = -y src/arithmetic_cores \
 						 -y src/fifo \
-						 -y src/ray_triangle_intersection/vector_operations +libext+.v
+						 -y src/ray_triangle_intersection/vector_operations +libext+.sv
 
 clean:
 	rm -f *.vvp *.vcd *.json
 
 
-verilate_FP21_mult:
+verilate_mult:
 	verilator -Wall --trace --exe  --build -cc $(VERILOG_DEPENDENCY_DIR) \
 	src/sim_cpp/sim_mult.cpp $(SIM_SKELETON_DIR) \
-	src/FP21_cores/FP21_mult.v \
-	src/FP21_cores/definitions.vh \
-	-top-module FP21_mult
+	src/arithmetic_cores/mult.sv \
+	src/arithmetic_cores/definitions.vh \
+	-top-module mult
 	obj_dir/VFP21_mult
-yosys_FP21_mult:
-	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_FP21_mult.json' src/FP21_cores/FP21_mult.v
-nextpnr_FP21_mult:
+yosys_mult:
+	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_FP21_mult.json' src/arithmetic_cores/FP21_mult.v
+nextpnr_mult:
 	nextpnr-ecp5 --85k --package $(PACKAGE) --speed $(SPEED_GRADE) \
 	--json $(YOSYS_JSON_DIR)yosys_FP21_mult.json \
 	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_FP21_mult.log
@@ -34,58 +34,58 @@ nextpnr_FP21_mult:
 verilate_add:
 	verilator -Wall --trace --exe --build -cc $(VERILOG_DEPENDENCY_DIR) \
 	src/sim_cpp/sim_add.cpp $(SIM_SKELETON_DIR)\
-	src/FP21_cores/add.sv \
-	src/FP21_cores/definitions.vh \
+	src/arithmetic_cores/add.sv \
+	src/arithmetic_cores/definitions.vh \
 	--top-module add
 	obj_dir/Vadd
-gtkwave_FP21_add:
+gtkwave_add:
 	gtkwave logs/vcd/add.vcd gtkwave_saves/add.gtkw
-yosys_FP21_add:
-	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_FP21_add.json' src/FP21_cores/FP21_add.v src/FP21_cores/sixteen_bit_LZC.v
-nextpnr_FP21_add:
+yosys_add:
+	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_add.json' src/arithmetic_cores/add.sv src/arithmetic_cores/sixteen_bit_lzc.sv
+nextpnr_add:
 	nextpnr-ecp5 --85k --package $(PACKAGE) --speed $(SPEED_GRADE) \
-	--json $(YOSYS_JSON_DIR)yosys_FP21_add.json \
-	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_FP21_add.log
+	--json $(YOSYS_JSON_DIR)yosys_add.json \
+	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_add.log
 
 
 
-verilate_FP21_pack: #not tested
-	verilator -Wall --trace --exe --build -cc src/sim_cpp/sim_pack.cpp src/FP21_cores/FP21_pack.v
-	obj_dir/VFP21_pack
+verilate_pack: #not tested
+	verilator -Wall --trace --exe --build -cc src/sim_cpp/sim_pack.cpp src/arithmetic_cores/pack.sv
+	obj_dir/Vpack
 
 
 
-verilate_FP21_greater_than: #tested but gives error_rate: 0.002248% due to precision errors.
+verilate_greater_than: #tested but gives error_rate: 0.002248% due to precision errors.
 	verilator -Wall --trace --exe --build -cc $(VERILOG_DEPENDENCY_DIR) \
 	src/sim_cpp/sim_greater_than.cpp $(SIM_SKELETON_DIR)\
-	src/FP21_cores/FP21_greater_than.v
-	obj_dir/VFP21_greater_than
-yosys_FP21_greater_than:
-	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_FP21_greater_than.json' src/FP21_cores/FP21_greater_than.v
-nextpnr_FP21_greater_than:
+	src/arithmetic_cores/greater_than.sv
+	obj_dir/Vgreater_than
+yosys_greater_than:
+	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_greater_than.json' src/arithmetic_cores/greater_than.sv
+nextpnr_greater_than:
 	nextpnr-ecp5 --85k --package $(PACKAGE) --speed $(SPEED_GRADE) \
-	--json $(YOSYS_JSON_DIR)yosys_FP21_greater_than.json \
-	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_FP21_greater_than.log
+	--json $(YOSYS_JSON_DIR)yosys_greater_than.json \
+	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_greater_than.log
 
 
 
-verilate_FP21_less_than: #tested but gives error_rate: 0.002265% due to precision errors.
+verilate_less_than: #tested but gives error_rate: 0.002265% due to precision errors.
 	verilator -Wall --trace --exe --build -cc $(VERILOG_DEPENDENCY_DIR) \
 	src/sim_cpp/sim_less_than.cpp $(SIM_SKELETON_DIR)\
-	src/FP21_cores/FP21_less_than.v
-	obj_dir/VFP21_less_than
-yosys_FP21_less_than:
-	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_FP21_less_than.json' src/FP21_cores/FP21_less_than.v
-nextpnr_FP21_less_than:
+	src/arithmetic_cores/less_than.sv
+	obj_dir/Vless_than
+yosys_less_than:
+	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_less_than.json' src/arithmetic_cores/less_than.sv
+nextpnr_less_than:
 	nextpnr-ecp5 --85k --package $(PACKAGE) --speed $(SPEED_GRADE) \
-	--json $(YOSYS_JSON_DIR)yosys_FP21_less_than.json \
-	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_FP21_less_than.log
+	--json $(YOSYS_JSON_DIR)yosys_less_than.json \
+	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_less_than.log
 
 
 
 verilate_sixteen_bit_LZC:
-	verilator -Wall --trace --exe --build -cc src/sim_cpp/sim_sixteen_bit_LZC.cpp src/FP21_cores/sixteen_bit_LZC.v
-	obj_dir/Vsixteen_bit_LZC
+	verilator -Wall --trace --exe --build -cc src/sim_cpp/sim_sixteen_bit_LZC.cpp src/arithmetic_cores/sixteen_bit_lzc.sv
+	obj_dir/Vsixteen_bit_lzc
 
 
 
