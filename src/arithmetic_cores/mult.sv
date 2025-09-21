@@ -1,4 +1,4 @@
-`include "src/FP21_cores/definitions.vh"
+`include "src/arithmetic_cores/definitions.vh"
 
 /*
 Inputs are unpacked arrays.
@@ -10,29 +10,13 @@ Works perfectly so far according to testbench.
 May need optimisation later.
 */
 
-
-module FP21_mult (
-	clk,
-	sign_a,
-	sign_b,
-	frac_a,
-	frac_b,
-	exp_a,
-	exp_b,
-
-	sign_c_out,
-	frac_c_out,
-	exp_c_out
+module mult (
+	input wire clk,
+	input p_float a,
+	input p_float b,
+	output p_float c
 );
 
-input wire sign_a, sign_b;
-input wire [(`frac):0] frac_a, frac_b;
-input wire [(`exp):0] exp_a, exp_b;
-input wire clk;
-
-output reg sign_c_out;
-output reg [`frac:0] frac_c_out;
-output reg [`exp:0] exp_c_out;
 
 reg sign_c;
 reg [(`exp):0] exp_c;
@@ -52,9 +36,9 @@ reg [(`frac + 1):0] frac_c_rounded;
 //6 pipeline stages.
 always @(posedge clk) begin
 	/*===========================================================*/
-	sign_c <= sign_a ^ sign_b;
-	exp_c <= exp_a + exp_b;
-	prod <= frac_a * frac_b;
+	sign_c <= a.sign ^ b.sign;
+	exp_c <= a.exp + b.exp;
+	prod <= a.frac * b.frac;
 
 	/*===========================================================*/
 	sign_c_dl <= sign_c;
@@ -89,10 +73,10 @@ always @(posedge clk) begin
 	frac_c_rounded <= prod_trunk_dl + {12'b0, round_up}; 
 
 	/*===========================================================*/
-	sign_c_out <= sign_c_dl4;
-	exp_c_out <= norm_exp_c_dl3 + {8'b0, frac_c_rounded[`frac+1]};
+	c.sign <= sign_c_dl4;
+	c.exp <= norm_exp_c_dl3 + {8'b0, frac_c_rounded[`frac+1]};
 
-	{1'b0, frac_c_out} <= frac_c_rounded >> frac_c_rounded[`frac+1];
+	c.frac <= {frac_c_rounded >> frac_c_rounded[`frac+1]}[`frac:0];
 end
 
 endmodule

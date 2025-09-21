@@ -10,9 +10,9 @@ The module is pipelined.
 
 module add (
 	input wire clk,
-	input u_float a,
-	input u_float b,
-	output u_float c
+	input p_float a,
+	input p_float b,
+	output p_float c
 );
 
 reg [`exp:0] exp_diff, exp_diff_abs, exp_greater, exp_greater_dl, exp_greater_dl2, exp_greater_dl3, exp_greater_dl4, exp_greater_dl5, exp_greater_dl6;
@@ -124,7 +124,7 @@ always @(posedge clk) begin
 	//c.sign <= 1;
 
 	//{1'b0, c.frac} <= frac_normalized_trunk_rounded >> frac_normalized_trunk_rounded[`frac+1];
-	c.frac <= {frac_normalized_trunk_rounded >> frac_normalized_trunk_rounded[`frac+1]}[12:0];
+	c.frac <= {frac_normalized_trunk_rounded >> frac_normalized_trunk_rounded[`frac+1]}[`frac:0];
 
 	c.exp <= exp_greater_normalized_dl2 + {`exp'b0, frac_normalized_trunk_rounded[`frac+1]};
 

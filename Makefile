@@ -21,13 +21,13 @@ verilate_mult:
 	src/arithmetic_cores/mult.sv \
 	src/arithmetic_cores/definitions.vh \
 	-top-module mult
-	obj_dir/VFP21_mult
+	obj_dir/Vmult
 yosys_mult:
-	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_FP21_mult.json' src/arithmetic_cores/FP21_mult.v
+	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_mult.json' src/arithmetic_cores/_mult.sv
 nextpnr_mult:
 	nextpnr-ecp5 --85k --package $(PACKAGE) --speed $(SPEED_GRADE) \
-	--json $(YOSYS_JSON_DIR)yosys_FP21_mult.json \
-	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_FP21_mult.log
+	--json $(YOSYS_JSON_DIR)yosys_mult.json \
+	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_mult.log
 
 
 

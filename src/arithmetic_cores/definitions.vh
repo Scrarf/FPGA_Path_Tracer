@@ -8,9 +8,9 @@
 
 typedef struct packed{
 	logic sign;
-	logic [`exp:0] exp; //removed "signed" here remember just in case.
+	logic [`exp:0] exp;
 	logic [`frac:0] frac;
-} u_float; //unpacked float
+} p_float; //unpacked float
 
 
 `endif
