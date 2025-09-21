@@ -31,15 +31,15 @@ nextpnr_FP21_mult:
 
 
 
-verilate_FP21_add:
+verilate_add:
 	verilator -Wall --trace --exe --build -cc $(VERILOG_DEPENDENCY_DIR) \
 	src/sim_cpp/sim_add.cpp $(SIM_SKELETON_DIR)\
-	src/FP21_cores/FP21_add.v \
+	src/FP21_cores/add.sv \
 	src/FP21_cores/definitions.vh \
-	--top-module FP21_add
-	obj_dir/VFP21_add
+	--top-module add
+	obj_dir/Vadd
 gtkwave_FP21_add:
-	gtkwave logs/vcd/FP21_add.vcd gtkwave_saves/FP21_add.gtkw
+	gtkwave logs/vcd/add.vcd gtkwave_saves/add.gtkw
 yosys_FP21_add:
 	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_FP21_add.json' src/FP21_cores/FP21_add.v src/FP21_cores/sixteen_bit_LZC.v
 nextpnr_FP21_add:

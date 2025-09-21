@@ -8,7 +8,7 @@ Needs propper zero handling at least.
 The module is pipelined.
 */
 
-module FP21_add (
+/*module add (
 	clk,
 	sign_a,
 	sign_b,
@@ -20,9 +20,16 @@ module FP21_add (
 	sign_c_out,
 	exp_c_out,
 	frac_c_out
+);*/
+
+module add (
+	input wire clk,
+	input u_float a,
+	input u_float b,
+	output u_float c
 );
 
-input wire sign_a, sign_b;
+/*input wire sign_a, sign_b;
 input wire signed [`exp:0] exp_a, exp_b;
 input wire [`frac:0] frac_a, frac_b;
 input wire clk;
@@ -30,7 +37,7 @@ input wire clk;
 output reg sign_c_out;
 output reg [`exp:0] exp_c_out;
 output reg [`frac:0] frac_c_out;
-
+*/
 
 reg [`exp:0] exp_diff, exp_diff_abs, exp_greater, exp_greater_dl, exp_greater_dl2, exp_greater_dl3, exp_greater_dl4, exp_greater_dl5, exp_greater_dl6;
 reg [`exp:0] exp_greater_normalized, exp_greater_normalized_dl, exp_greater_normalized_dl2;
@@ -45,21 +52,21 @@ reg [`frac+1:0] frac_normalized_trunk_rounded;
 
 reg round_up, round, guard, sticky;
 
-
 sixteen_bit_LZC LZC(.clk(clk), .array(frac_combined_abs[(`frac*2)+3:(`frac*2)-12]), .value(lzc));
 reg [3:0] lzc;
 
+wire exp_comparison = $signed(a.exp) > $signed(b.exp);
 //11 pipeline stages
 always @(posedge clk) begin
 	/*===========================================================*/
-	exp_diff <= exp_a - exp_b;
-	exp_greater <= (exp_a > exp_b) ? exp_a : exp_b;
+	exp_diff <= a.exp - b.exp;
+	exp_greater <= exp_comparison ? a.exp : b.exp;
 	
-	frac_to_be_shifted <= (exp_a > exp_b) ? frac_b : frac_a;
-	frac_to_be_bypassed <= (exp_a > exp_b) ? frac_a : frac_b;
+	frac_to_be_shifted <= exp_comparison ? b.frac : a.frac;
+	frac_to_be_bypassed <= exp_comparison ? a.frac : b.frac;
 
-	sign_xor <= sign_a ^ sign_b;
-	sign_c <= (exp_a == exp_b) ? ((frac_a > frac_b) ? sign_a : sign_b) : ((exp_a > exp_b) ? sign_a : sign_b);
+	sign_xor <= a.sign ^ b.sign;
+	sign_c <= (a.exp == b.exp) ? ((a.frac > b.frac) ? a.sign : b.sign) : (exp_comparison ? a.sign : b.sign);
 
 	/*===========================================================*/
 	sign_xor_dl <= sign_xor;
@@ -137,11 +144,13 @@ always @(posedge clk) begin
 	sign_c_dl9 <= sign_c_dl8;
 
 	/*===========================================================*/
-	sign_c_out <= sign_c_dl9;
+	c.sign <= sign_c_dl9;
+	//c.sign <= 1;
 
-	{1'b0, frac_c_out} <= frac_normalized_trunk_rounded >> frac_normalized_trunk_rounded[`frac+1];
+	//{1'b0, c.frac} <= frac_normalized_trunk_rounded >> frac_normalized_trunk_rounded[`frac+1];
+	c.frac <= {frac_normalized_trunk_rounded >> frac_normalized_trunk_rounded[`frac+1]}[12:0];
 
-	exp_c_out <= exp_greater_normalized_dl2 + {`exp'b0, frac_normalized_trunk_rounded[`frac+1]};
+	c.exp <= exp_greater_normalized_dl2 + {`exp'b0, frac_normalized_trunk_rounded[`frac+1]};
 
 
 end

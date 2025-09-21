@@ -1,0 +1,72 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Sun Sep 21 01:15:13 2025
+[*]
+[dumpfile] "/home/scrarf/projects/FPGA_Path_Tracer/logs/vcd/add.vcd"
+[dumpfile_mtime] "Sun Sep 21 00:54:12 2025"
+[dumpfile_size] 10896493
+[savefile] "/home/scrarf/projects/FPGA_Path_Tracer/gtkwave_saves/add.gtkw"
+[timestart] 0
+[size] 1908 1007
+[pos] -214 -116
+*-5.000000 59 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] add.
+[sst_width] 253
+[signals_width] 651
+[sst_expanded] 1
+[sst_vpaned_height] 295
+@28
+add.add.a[22:0]
+add.add.b[22:0]
+@208
+-
+@28
+add.add.exp_diff[8:0]
+add.add.exp_greater[8:0]
+add.add.frac_to_be_shifted[12:0]
+@29
+add.add.frac_to_be_bypassed[12:0]
+@28
+add.add.sign_xor
+add.add.sign_c
+@208
+-
+@28
+add.add.exp_diff_abs[8:0]
+@208
+-
+@28
+add.add.frac_shifted[25:0]
+@208
+-
+@28
+add.add.frac_shifted_inverted[27:0]
+@208
+-
+@28
+add.add.frac_combined[27:0]
+@208
+-
+@28
+add.add.frac_combined_abs[27:0]
+@208
+-
+-
+@28
+add.add.exp_greater_normalized[8:0]
+add.add.frac_normalized[12:0]
+@208
+-
+@28
+add.add.frac_normalized_trunk[12:0]
+add.add.round_up
+@208
+-
+@28
+add.add.frac_normalized_trunk_rounded[13:0]
+@208
+-
+@28
+add.add.c[22:0]
+[pattern_trace] 1
+[pattern_trace] 0
