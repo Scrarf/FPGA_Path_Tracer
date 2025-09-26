@@ -63,7 +63,7 @@ void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count
         expected_output.pop();
 
         if (expected.time != contextp->time()) {
-            printf("SYNC_ERROR!\n expected:%d, contextp:%d.\n", expected.time, contextp->time());
+            printf("SYNC_ERROR!\n expected:%d, contextp:%ld.\n", expected.time, contextp->time());
             contextp->gotFinish(true);
             return;
         }
@@ -73,7 +73,7 @@ void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count
         
 
         if (fabs(expected.c - got) > 0.1) {
-            printf("Mismatch at t=%d: %.4f + %.4f = %.4f (got %.4f)\n",
+            printf("Mismatch at t=%ld: %.4f + %.4f = %.4f (got %.4f)\n",
                    contextp->time(), expected.a, expected.b, expected.c, got);
             //printf("Raw packed array: %.23b\n", dut->c);
             (*error_count)++;
