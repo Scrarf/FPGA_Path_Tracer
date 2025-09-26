@@ -104,14 +104,14 @@ nextpnr_fifo_36bit_sync:
 verilate_cross_product_component:
 	verilator -Wall --trace --exe --build -cc $(VERILOG_DEPENDENCY_DIR) \
 	src/sim_cpp/cross_product_component.cpp $(SIM_SKELETON_DIR) \
-	src/ray_triangle_intersection/vector_operations/cross_product_component.v
+	src/ray_triangle_intersection/vector_operations/cross_product_component.sv
 	obj_dir/Vcross_product_component
 
 
 verilate_cross_product:
 	verilator -Wall --trace --exe --build -cc $(VERILOG_DEPENDENCY_DIR) \
-	src/sim_cpp/cross_product.cpp $(SIM_SKELETON_DIR)\
-	src/ray_triangle_intersection/vector_operations/cross_product.v \
+	src/sim_cpp/sim_cross_product.cpp $(SIM_SKELETON_DIR)\
+	src/ray_triangle_intersection/vector_operations/cross_product.sv \
 	--top-module cross_product
 	obj_dir/Vcross_product
 
