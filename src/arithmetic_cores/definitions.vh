@@ -6,11 +6,20 @@
 `define exp 8
 
 
+
 typedef struct packed{
 	logic sign;
 	logic [`exp:0] exp;
 	logic [`frac:0] frac;
-} p_float; //unpacked float
+} p_float;
+
+typedef struct packed {
+	p_float x;
+	p_float y;
+	p_float z;
+} p_float3;
+
 
 
 `endif
+
