@@ -23,7 +23,7 @@ verilate_mult:
 	-top-module mult
 	obj_dir/Vmult
 yosys_mult:
-	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_mult.json' src/arithmetic_cores/_mult.sv
+	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_mult.json' src/arithmetic_cores/mult.sv
 nextpnr_mult:
 	nextpnr-ecp5 --85k --package $(PACKAGE) --speed $(SPEED_GRADE) \
 	--json $(YOSYS_JSON_DIR)yosys_mult.json \
