@@ -85,7 +85,7 @@ endmodule
 /*
 NEXTPNR REPORT:
 
-Max frequency: 383.88 MHz.
+Max frequency: 361.53 MHz.
 
 Info: Device utilisation:
 Info:             TRELLIS_IO:      70/    365    19%
