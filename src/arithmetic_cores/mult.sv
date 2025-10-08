@@ -76,7 +76,8 @@ always @(posedge clk) begin
 	c.sign <= sign_c_dl4;
 	c.exp <= norm_exp_c_dl3 + {8'b0, frac_c_rounded[`frac+1]};
 
-	c.frac <= {frac_c_rounded >> frac_c_rounded[`frac+1]}[`frac:0];
+	//c.frac <= {frac_c_rounded >> frac_c_rounded[`frac+1]}[`frac:0]; //works only in verilator and not yosys
+	c.frac <= (`frac+1)'(frac_c_rounded >> frac_c_rounded[`frac+1]);
 end
 
 endmodule

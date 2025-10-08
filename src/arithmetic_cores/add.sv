@@ -96,12 +96,21 @@ always @(posedge clk) begin
 	/*===========================================================*/
 	exp_greater_normalized <= (exp_greater_dl6 - {5'b0, lzc}) + 2;
 	
-	frac_normalized <= {frac_combined_abs_dl << lzc}[(`frac*2)+3:(`frac+3)]; //UNUSED SIGNAL WARNING
+	//frac_normalized <= {frac_combined_abs_dl << lzc}[(`frac*2)+3:(`frac+3)];
+	//frac_normalized <= frac_combined_abs_dl[(`frac*2)+3-lzc:(`frac+3)-lzc];
+	frac_normalized <= frac_combined_abs_dl[(`frac+3-lzc) +: `frac+1];
+	//^ some of the above dont work in verilator and some dont work in yosys so had to rewrite 2 times.
 
-	guard <= {(frac_combined_abs_dl << lzc)}[`frac+2];
-	round <= {(frac_combined_abs_dl << lzc)}[`frac+1];
-	sticky <= |{(frac_combined_abs_dl << lzc)}[`frac:0];
+	//guard <= {(frac_combined_abs_dl << lzc)}[`frac+2];
+	//round <= {(frac_combined_abs_dl << lzc)}[`frac+1];
+	//sticky <= |{(frac_combined_abs_dl << lzc)}[`frac:0];
+	//Rewrite to sv.
 
+	guard <= frac_combined_abs_dl[`frac+2-lzc];
+	round <= frac_combined_abs_dl[`frac+1-lzc];
+	sticky <= |(`frac+1)'(frac_combined_abs_dl << lzc);
+
+	
 	sign_c_dl7 <= sign_c_dl6;
 
 	/*===========================================================*/
@@ -124,7 +133,9 @@ always @(posedge clk) begin
 	//c.sign <= 1;
 
 	//{1'b0, c.frac} <= frac_normalized_trunk_rounded >> frac_normalized_trunk_rounded[`frac+1];
-	c.frac <= {frac_normalized_trunk_rounded >> frac_normalized_trunk_rounded[`frac+1]}[`frac:0];
+	//c.frac <= {frac_normalized_trunk_rounded >> frac_normalized_trunk_rounded[`frac+1]}[`frac:0];
+	//rewrite to sv.
+	c.frac <= frac_normalized_trunk_rounded[($size(`frac))'(frac_normalized_trunk_rounded[`frac+1]) +: `frac+1];
 
 	c.exp <= exp_greater_normalized_dl2 + {`exp'b0, frac_normalized_trunk_rounded[`frac+1]};
 
@@ -136,7 +147,7 @@ endmodule
 /*
 NEXTPNR REPORT:
 
-Max frequency: 199.64 MHz.
+Max frequency: 199.36 MHz.
 
 Info: Device utilisation:
 Info:             TRELLIS_IO:      70/    365    19%
@@ -164,8 +175,9 @@ Info:                DQSBUFM:       0/     14     0%
 Info:        TRELLIS_ECLKBUF:       0/      8     0%
 Info:           ECLKBRIDGECS:       0/      2     0%
 Info:                   DCSC:       0/      2     0%
-Info:             TRELLIS_FF:     399/  83640     0%
-Info:           TRELLIS_COMB:     765/  83640     0%
+Info:             TRELLIS_FF:     408/  83640     0%
+Info:           TRELLIS_COMB:     720/  83640     0%
 Info:           TRELLIS_RAMW:       0/  10455     0%
+
 
 */
