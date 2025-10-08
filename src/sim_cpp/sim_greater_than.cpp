@@ -3,7 +3,7 @@
 #include <cmath>
 #include <cstdio>
 #include "functions.h"
-#include "VFP21_greater_than.h"
+#include "Vgreater_than.h"
 #include "verilator_skeleton/verilator_if.h"
 
 #define CLOCK_HIGH (dut->clk)
@@ -21,11 +21,11 @@ static int sign_a, exp_a, frac_a;
 static int sign_b, exp_b, frac_b;
 static double val_a, val_b;
 
-static VFP21_greater_than* dut;
+static Vgreater_than* dut;
 static std::queue<expected_result> expected_output;
 
 void tb_init(VerilatedContext* contextp) {
-    dut = new VFP21_greater_than(contextp, "FP21_greater_than");
+    dut = new Vgreater_than(contextp, "greater_than");
     dut->clk = 1;
 }
 
@@ -34,18 +34,11 @@ void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count
 
     if (CLOCK_HIGH) {
         val_a = random_double(-10, 10);
-        to_int(val_a, &sign_a, &exp_a, &frac_a);
-
         val_b = random_double(-10, 10);
-        to_int(val_b, &sign_b, &exp_b, &frac_b);
 
-        dut->sign_a = sign_a;
-        dut->sign_b = sign_b;
-        dut->exp_a = exp_a;
-        dut->exp_b = exp_b;
-        dut->frac_a = frac_a;
-        dut->frac_b = frac_b;
-
+		dut->a = double_to_packed_array(val_a);
+		dut->b = double_to_packed_array(val_b);
+		
         expected_output.push({(int)contextp->time() + ((PIPELINE_DELAY) * 2), val_a, val_b, val_a > val_b});
     }
 
@@ -54,7 +47,6 @@ void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count
 
         auto expected = expected_output.front();
         expected_output.pop();
-
         if (expected.time != contextp->time()) {
             printf("SYNC_ERROR!\n expected:%d, contextp:%d.\n", expected.time, contextp->time());
             contextp->gotFinish(true);

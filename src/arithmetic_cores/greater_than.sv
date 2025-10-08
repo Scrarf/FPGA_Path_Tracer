@@ -1,40 +1,25 @@
-`include "src/FP21_cores/definitions.vh"
+`include "src/arithmetic_cores/definitions.vh"
 
 /*
 Tested but gives error_rate: 0.0022% due to precision errors.
 Works with both packed and unpacked FP21s. (not sure about packed anymore hmm....)
 */
 
-module FP21_greater_than (
-	clk,
+module greater_than (
+	input wire clk,
 
-	sign_a,
-	exp_a,
-	frac_a,
-	sign_b,
-	exp_b,
-	frac_b,
-	result
+	input p_float a,
+	input p_float b,
+	
+	output reg result
 );
-
-input wire clk;
-
-input wire sign_a;
-input wire signed [`exp:0] exp_a;
-input wire [`frac:0] frac_a;
-
-input wire sign_b;
-input wire signed [`exp:0] exp_b;
-input wire [`frac:0] frac_b;
-
-output reg result;
 
 
 //1 pipeline stage.
 always @(posedge clk) begin
-	result <= ((sign_a ^ sign_b) ? sign_b :
-			  ((exp_a > exp_b) ? 1'b1 :
-			  ((frac_a > frac_b) & (exp_a == exp_b))) ^ (sign_a & sign_b));
+	result <= ((a.sign ^ b.sign) ? b.sign :
+			  (($signed(a.exp) > $signed(b.exp)) ? 1'b1 :
+			  ((a.frac > b.frac) & ($signed(a.exp) == $signed(b.exp)))) ^ (a.sign & b.sign));
 end
 
 endmodule
