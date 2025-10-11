@@ -17,8 +17,8 @@ int PIPELINE_DELAY = 17;
 
 struct expected_result {
     int time;
-    double in_arr[6];
-    double out_arr[3];
+    double arr_in[6];
+    double arr_out[3];
 };
 
 
@@ -31,8 +31,13 @@ static std::queue<expected_result> expected_output;
 VerilatedVcdC* tfp = new VerilatedVcdC;
 #endif
 
-void cross_product(double* out_arr, double in_arr) {
+void cross_product(double arr_out[], double arr_in[]) {
+
+	arr_out[0] = arr_in[1] * arr_in[5] - arr_in[2] * arr_in[4];
+	arr_out[1] = arr_in[2] * arr_in[3] - arr_in[0] * arr_in[5];
+	arr_out[2] = arr_in[0] * arr_in[4] - arr_in[1] * arr_in[3];
 	
+	return;
 }
 
 
@@ -51,19 +56,26 @@ void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count
 
     if (CLOCK_HIGH) {
     	for (int i = 0; i < 6; i++) {
-        	val[i] = random_double(-10, 10);
+        	rand_double[i] = random_double(-10, 10);
     	}
 
-  
-		uint32_t p_float3_a[3], p_float3_b[3];
+		uint32_t p_float3_a[3];
+		uint32_t p_float3_b[3];
 		
 		double3_to_packed_float3(p_float3_a, rand_double[0], rand_double[1], rand_double[2]);
 		double3_to_packed_float3(p_float3_b, rand_double[3], rand_double[4], rand_double[5]);
-        
-        dut->a = p_float3_a;
-        dut->b = p_float3_b;
 
-        expected_output.push({(int)contextp->time() + (PIPELINE_DELAY * 2), val_a, val_b, val_a * val_b});
+        for (int i = 0; i < 6; i++) {
+        	dut->a[i] = p_float3_a[i];
+        	dut->b[i] = p_float3_b[i];
+        }
+
+		double ans_arr[3];
+		cross_product(ans_arr, rand_double);
+
+        expected_output.push({(int)contextp->time() + (PIPELINE_DELAY * 2),
+        {rand_double[0], rand_double[1], rand_double[2], rand_double[3], rand_double[4], rand_double[5]},
+        {ans_arr[0], ans_arr[1], ans_arr[2]} });
     }
 
     if (CLOCK_HIGH && contextp->time() > (PIPELINE_DELAY * 2)) {
@@ -78,19 +90,19 @@ void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count
             return;
         }
 
-        double got = packed_array_to_double(dut->c);
-
+		double got_x, got_y, got_z;
+		packed_float3_to_double(&got_x, &got_y, &got_z, dut->c);
         
-
-        if (fabs(expected.c - got) > 0.1) {
-            printf("Mismatch at t=%d: %.4f + %.4f = %.4f (got %.4f)\n",
-                   contextp->time(), expected.a, expected.b, expected.c, got);
+        if ((fabs(expected.arr_out[0] - got_x) > 0.1) || (fabs(expected.arr_out[1] - got_y) > 0.1) || (fabs(expected.arr_out[2] - got_z) > 0.1)) {
+            //printf("Mismatch at t=%d: %.4f + %.4f = %.4f (got %.4f)\n",
+            //       contextp->time(), expected.a, expected.b, expected.c, got);
             //printf("Raw packed array: %.23b\n", dut->c);
+            printf("error occoured!\n");
             (*error_count)++;
         }
         (*itteration_count)++;
 
-    
+   
     }
 
     #ifdef ENABLE_DUMP
