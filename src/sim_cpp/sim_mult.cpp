@@ -59,9 +59,9 @@ void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count
     if (CLOCK_HIGH && contextp->time() > ((PIPELINE_DELAY) * 2)) {
         if (expected_output.empty()) {printf("QUEUE_IS_EMPTY!\n"); };
 
+
         auto expected = expected_output.front();
         expected_output.pop();
-
         if (expected.time != contextp->time()) {
             printf("SYNC_ERROR!\n expected:%d, contextp:%ld.\n", expected.time, contextp->time());
             contextp->gotFinish(true);
