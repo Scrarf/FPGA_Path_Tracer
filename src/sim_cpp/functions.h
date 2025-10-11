@@ -2,9 +2,12 @@
 #include <stdio.h>
 #include <random>
 
+#define INT_MAX 0xFFFFFFFF
+
 #define EXP 8
 #define FRAC 12
 
+uint32_t float_size = EXP + FRAC + 3;
 
 typedef struct {
     int sign;
@@ -49,87 +52,41 @@ double packed_array_to_double(int p_float) {
     return value;
 }
 
-
 uint32_t double_to_packed_array(double val) {
+
     uint32_t sign = (val < 0);
     int32_t exp = (int)floor(log2(fabs(val)));
     uint32_t frac = (int)floor((fabs(val) / pow(2.0, exp)) * (1 << (FRAC)));
     //printf("frac: %d\n",frac);
 
 	//printf("coverage_6\n");
-    return (sign << (EXP + FRAC + 2)) | ((exp & ~(0xFFFFFFFF << (EXP + 1))) << (FRAC + 1)) | frac;
+    return (sign << (EXP + FRAC + 2)) | ((exp & ~(INT_MAX << (EXP + 1))) << (FRAC + 1)) | frac;
 }
 
-void double3_to_packed_float3(uint32_t* tmp_array, double dx, double dy, double dz) {
+void double3_to_packed_float3(uint32_t* packed_float3, double dx, double dy, double dz) {
 	
 	uint32_t x = double_to_packed_array(dx);
 	uint32_t y = double_to_packed_array(dy);
 	uint32_t z = double_to_packed_array(dz);
 	
-	uint32_t float_size = EXP + FRAC + 3;
-	tmp_array[0] = x | (y >> float_size);
-	tmp_array[1] = (y << (32 - float_size)) | (z >> (32 - float_size)) | (z <<  (2 * (32 - float_size)));
-	tmp_array[2] = z << (2 * (32 - float_size));
+	packed_float3[0] = z | (y << float_size);
+	packed_float3[1] = (y >> (32 - float_size)) | (z << (32 - (2 * (32 - float_size))));
+	packed_float3[2] = x >> (2 * (32 - float_size));
 	return;
 }
 
+void packed_float3_to_double3(double* x, double* y, double* z, uint32_t packed_float3[]) {
 
-/*
-double to_double(int sign, int exp, int frac) {
+	uint32_t iz = packed_float3[0] & (~(INT_MAX << float_size));
+	uint32_t iy = (packed_float3[0] >> float_size) | (packed_float3[1] << (32 - float_size));
+	uint32_t ix = (packed_float3[1] >> ((2 * float_size) - 32)) | packed_float3[2] << (32 - ((2 * float_size) - 32));
 
-    exp = sign_extend_exp(exp);
+	*x = packed_array_to_double(ix);
+	*y = packed_array_to_double(iy);
+	*z = packed_array_to_double(iz);
 
-    double value;
-    value = (double)frac / (1 << FRAC);
-    value = value * pow(2, exp);
-    if (sign) {
-        value = -value;
-    }
-    printf("coverage_2\n");
-    return value;
+	return;
 }
-*/
-
-/*
-void to_int(double flt, int* sign, int* exp, int* frac) {
-
-    if (flt < 0) {
-        *sign = 1;
-        flt = -flt;
-    } else {
-        *sign = 0;
-    }
-
-    if (flt == 0.0) {
-        *exp = 0;
-        *frac = 0;
-        return;
-    }
-
-    int actual_exp = (int)floor(log2(flt));
-    *exp = actual_exp;
-
-    double mantissa_double = flt / pow(2.0, actual_exp);
-
-
-    *frac = (int)round(mantissa_double * (1 << 12));
-
-    if (*frac == (1 << 13)) {
-        *exp += 1;
-        *frac = (1 << 12);
-    }
-    printf("coverage_4\n");
-}
-*/
-
-
-/*
-int pack_struct (u_float u_float) {
-	printf("coverage_5\n");
-    return u_float.frac | (u_float.exp << 12 ) | (u_float.sign << 20);
-     
-}
-*/
 
 
 
