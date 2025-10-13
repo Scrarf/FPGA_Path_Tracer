@@ -35,13 +35,13 @@ int sign_extend_exp(int exp) {
 
 
 double packed_array_to_double(int p_float) {
-    int exp = sign_extend_exp((p_float >> (FRAC + 1)) & ~(0xFFFFFFFF << (EXP + 1)));
+    int exp = sign_extend_exp((p_float >> (FRAC + 1)) & ~(INT_MAX << (EXP + 1)));
     //printf("RAW EXPONENT: %d\n", exp);
     
     double value;
-    //printf("RAW VALUE: %b\n", (p_float & ~(0xFFFFFFFF << (FRAC + 1))));
+    //printf("RAW VALUE: %b\n", (p_float & ~(INT_MAX << (FRAC + 1))));
     
-    value = (double)(p_float & ~(0xFFFFFFFF << (FRAC + 1))) / (1 << FRAC);
+    value = (double)(p_float & ~(INT_MAX << (FRAC + 1))) / (1 << FRAC);
     //printf("VALUEEEE: %f\n", value);
     
     value = value * pow(2, exp);
@@ -70,16 +70,18 @@ void double3_to_packed_float3(uint32_t* packed_float3, double dx, double dy, dou
 	uint32_t z = double_to_packed_array(dz);
 	
 	packed_float3[0] = z | (y << float_size);
-	packed_float3[1] = (y >> (32 - float_size)) | (z << (32 - (2 * (32 - float_size))));
+	packed_float3[1] = (y >> (32 - float_size)) | (x << (32 - (2 * (32 - float_size))));
 	packed_float3[2] = x >> (2 * (32 - float_size));
 	return;
 }
 
 void packed_float3_to_double3(double* x, double* y, double* z, uint32_t packed_float3[]) {
 
-	uint32_t iz = packed_float3[0] & (~(INT_MAX << float_size));
-	uint32_t iy = (packed_float3[0] >> float_size) | (packed_float3[1] << (32 - float_size));
-	uint32_t ix = (packed_float3[1] >> ((2 * float_size) - 32)) | packed_float3[2] << (32 - ((2 * float_size) - 32));
+	uint32_t mask = ~(INT_MAX << float_size);
+
+	uint32_t iz = (uint32_t)packed_float3[0] & (mask);
+	uint32_t iy = (((uint32_t)packed_float3[0] >> float_size) | ((uint32_t)packed_float3[1] << (32 - float_size))) & mask;
+	uint32_t ix = ((uint32_t)packed_float3[1] >> ((2 * float_size) - 32)) | (uint32_t)packed_float3[2] << (32 - ((2 * float_size) - 32));
 
 	*x = packed_array_to_double(ix);
 	*y = packed_array_to_double(iy);
@@ -87,7 +89,3 @@ void packed_float3_to_double3(double* x, double* y, double* z, uint32_t packed_f
 
 	return;
 }
-
-
-
-
