@@ -1,7 +1,7 @@
 #include "../functions.h"
 #include <cmath>
 
-#define MARGIN 0.001
+#define MARGIN 0.01
 
 #define STEPS 1000000
 
