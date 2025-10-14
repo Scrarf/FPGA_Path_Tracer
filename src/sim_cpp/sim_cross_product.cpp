@@ -53,7 +53,7 @@ void tb_init(VerilatedContext* contextp) {
 
 void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count) {
     dut->clk = !dut->clk;
-
+    
     if (CLOCK_HIGH) {
     	for (int i = 0; i < 6; i++) {
         	rand_double[i] = random_double(-10, 10);
@@ -65,7 +65,7 @@ void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count
 		double3_to_packed_float3(p_float3_a, rand_double[0], rand_double[1], rand_double[2]);
 		double3_to_packed_float3(p_float3_b, rand_double[3], rand_double[4], rand_double[5]);
 
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 3; i++) {
         	dut->a[i] = p_float3_a[i];
         	dut->b[i] = p_float3_b[i];
         }
@@ -91,13 +91,18 @@ void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count
         }
 
 		double got_x, got_y, got_z;
-		packed_float3_to_double(&got_x, &got_y, &got_z, dut->c);
+
+		packed_float3_to_double3(&got_x, &got_y, &got_z, dut->c);
+
+		double margin = 0.01;
         
-        if ((fabs(expected.arr_out[0] - got_x) > 0.1) || (fabs(expected.arr_out[1] - got_y) > 0.1) || (fabs(expected.arr_out[2] - got_z) > 0.1)) {
-            //printf("Mismatch at t=%d: %.4f + %.4f = %.4f (got %.4f)\n",
-            //       contextp->time(), expected.a, expected.b, expected.c, got);
-            //printf("Raw packed array: %.23b\n", dut->c);
-            printf("error occoured!\n");
+        if ((fabs(expected.arr_out[0] - got_x) > margin) || (fabs(expected.arr_out[1] - got_y) > margin) || (fabs(expected.arr_out[2] - got_z) > margin)) {
+            printf("Mismatch at t=%d: in_a: [%.4f, %.4f, %.4f] in_b: [%.4f, %.4f, %.4f] out_c: [%.4f, %.4f, %.4f] exp_c: [%.4f, %.4f, %.4f]\n",
+                   contextp->time(), expected.arr_in[0], expected.arr_in[1],expected.arr_in[2],
+                         			 expected.arr_in[3], expected.arr_in[4], expected.arr_in[5],
+                         			 got_x, got_y, got_z,
+                   					 expected.arr_out[0], expected.arr_out[1], expected.arr_out[2]
+                   					 );
             (*error_count)++;
         }
         (*itteration_count)++;

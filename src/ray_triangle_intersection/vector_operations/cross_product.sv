@@ -20,9 +20,9 @@ mult mult_5(clk, a.y, b.x, net[5]);
 
 p_float [5:0] net;
 
-add add_0(clk, net[0], {~net[1].sign, net[1].exp, net[1].frac}, c.x);
-add add_1(clk, net[2], {~net[3].sign, net[3].exp, net[3].frac}, c.y);
-add add_2(clk, net[4], {~net[5].sign, net[5].exp, net[5].frac}, c.z);
+add add_0(clk, net[0], {~(net[1].sign), net[1].exp, net[1].frac}, c.x);
+add add_1(clk, net[2], {~(net[3].sign), net[3].exp, net[3].frac}, c.y);
+add add_2(clk, net[4], {~(net[5].sign), net[5].exp, net[5].frac}, c.z);
 
 
 endmodule
