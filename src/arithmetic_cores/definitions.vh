@@ -20,6 +20,17 @@ typedef struct packed {
 } p_float3;
 
 
+`define mult(base_name, in_a, in_b) \
+	p_float base_name``_net; \
+	mult base_name(.clk(clk), .a(in_a), .b(in_b), .c(base_name``_net));
+
+`define add(base_name, in_a, in_b) \
+	p_float base_name``_net; \
+	add base_name(.clk(clk), .a(in_a), .b(in_b), .c(base_name``_net));
+
+`define neg_p_float(net) \
+	{~(net.sign), net.exp, net.frac}
+
 
 `endif
 

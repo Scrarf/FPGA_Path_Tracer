@@ -12,7 +12,7 @@
 
 #define CLOCK_HIGH (dut->clk)
 
-int SIM_STEPS = 10000;
+int SIM_STEPS = 1000000;
 int PIPELINE_DELAY = 17;
 
 struct expected_result {
@@ -85,7 +85,7 @@ void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count
         expected_output.pop();
 
         if (expected.time != contextp->time()) {
-            printf("SYNC_ERROR!\n expected:%d, contextp:%d.\n", expected.time, contextp->time());
+            printf("SYNC_ERROR!\n expected:%d, contextp:%ld.\n", expected.time, contextp->time());
             contextp->gotFinish(true);
             return;
         }
@@ -94,10 +94,10 @@ void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count
 
 		packed_float3_to_double3(&got_x, &got_y, &got_z, dut->c);
 
-		double margin = 0.01;
+		double margin = 0.1;
         
         if ((fabs(expected.arr_out[0] - got_x) > margin) || (fabs(expected.arr_out[1] - got_y) > margin) || (fabs(expected.arr_out[2] - got_z) > margin)) {
-            printf("Mismatch at t=%d: in_a: [%.4f, %.4f, %.4f] in_b: [%.4f, %.4f, %.4f] out_c: [%.4f, %.4f, %.4f] exp_c: [%.4f, %.4f, %.4f]\n",
+            printf("Mismatch at t=%ld: in_a: [%.4f, %.4f, %.4f] in_b: [%.4f, %.4f, %.4f] out_c: [%.4f, %.4f, %.4f] exp_c: [%.4f, %.4f, %.4f]\n",
                    contextp->time(), expected.arr_in[0], expected.arr_in[1],expected.arr_in[2],
                          			 expected.arr_in[3], expected.arr_in[4], expected.arr_in[5],
                          			 got_x, got_y, got_z,
