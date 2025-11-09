@@ -70,7 +70,7 @@ always @(posedge clk) begin
 	sign_c_dl4 <= sign_c_dl3;
 	norm_exp_c_dl3 <= norm_exp_c_dl2;
 
-	frac_c_rounded <= prod_trunk_dl + {12'b0, round_up}; 
+	frac_c_rounded <= prod_trunk_dl + {12'b0, round_up};
 
 	/*===========================================================*/
 	c.sign <= sign_c_dl4;
