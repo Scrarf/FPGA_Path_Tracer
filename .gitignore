@@ -2,3 +2,7 @@ yosys_json/
 obj_dir/
 logs/
 *.o
+\#*\#
+.\#*
+*.swp
+*.swo

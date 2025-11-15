@@ -1,8 +1,9 @@
-#design is planned to be tested on Lattice LFE5U-85F-7BG381I.
+#design is planned to be tested on Lattice LFE5U-45F-6BG256C.
 
-FREQ = 100 #MHz
-PACKAGE = CABGA381
-SPEED_GRADE = 7
+FREQ = 150 #MHz
+PACKAGE = CABGA256
+SPEED_GRADE = 6
+LUT_COUNT = 45k
 
 TIMING_DIR = logs/timing/
 YOSYS_JSON_DIR = yosys_json/
@@ -25,7 +26,7 @@ verilate_mult:
 yosys_mult:
 	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_mult.json' src/arithmetic_cores/mult.sv
 nextpnr_mult:
-	nextpnr-ecp5 --85k --package $(PACKAGE) --speed $(SPEED_GRADE) \
+	nextpnr-ecp5 --$(LUT_COUNT) --package $(PACKAGE) --speed $(SPEED_GRADE) \
 	--json $(YOSYS_JSON_DIR)yosys_mult.json \
 	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_mult.log
 
@@ -43,7 +44,7 @@ gtkwave_add:
 yosys_add:
 	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_add.json' src/arithmetic_cores/add.sv src/arithmetic_cores/sixteen_bit_lzc.sv
 nextpnr_add:
-	nextpnr-ecp5 --85k --package $(PACKAGE) --speed $(SPEED_GRADE) \
+	nextpnr-ecp5 --$(LUT_COUNT) --package $(PACKAGE) --speed $(SPEED_GRADE) \
 	--json $(YOSYS_JSON_DIR)yosys_add.json \
 	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_add.log
 
@@ -63,7 +64,7 @@ verilate_greater_than: #tested but gives error_rate: 0.002248% due to precision 
 yosys_greater_than:
 	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_greater_than.json' src/arithmetic_cores/greater_than.sv
 nextpnr_greater_than:
-	nextpnr-ecp5 --85k --package $(PACKAGE) --speed $(SPEED_GRADE) \
+	nextpnr-ecp5 --$(LUT_COUNT) --package $(PACKAGE) --speed $(SPEED_GRADE) \
 	--json $(YOSYS_JSON_DIR)yosys_greater_than.json \
 	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_greater_than.log
 
@@ -77,7 +78,7 @@ verilate_less_than: #tested but gives error_rate: 0.002265% due to precision err
 yosys_less_than:
 	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_less_than.json' src/arithmetic_cores/less_than.sv
 nextpnr_less_than:
-	nextpnr-ecp5 --85k --package $(PACKAGE) --speed $(SPEED_GRADE) \
+	nextpnr-ecp5 --$(LUT_COUNT) --package $(PACKAGE) --speed $(SPEED_GRADE) \
 	--json $(YOSYS_JSON_DIR)yosys_less_than.json \
 	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_less_than.log
 
@@ -96,7 +97,7 @@ verilate_fifo_36bit_sync:
 yosys_fifo_36bit_sync:
 	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_fifo_36bit_sync.json' src/fifo/fifo_36bit_sync.v
 nextpnr_fifo_36bit_sync:
-	nextpnr-ecp5 --85k --package $(PACKAGE) --speed $(SPEED_GRADE) \
+	nextpnr-ecp5 --$(LUT_COUNT) --package $(PACKAGE) --speed $(SPEED_GRADE) \
 	--json $(YOSYS_JSON_DIR)yosys_fifo_36bit_sync.json \
 	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_fifo_36bit_sync.log
 
