@@ -72,7 +72,7 @@ void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count
 
         
 
-        if (fabs(expected.c - got) > 0.1) {
+        if (fabs(expected.c - got) > 0.001) {
             printf("Mismatch at t=%ld: %.4f + %.4f = %.4f (got %.4f)\n",
                    contextp->time(), expected.a, expected.b, expected.c, got);
             //printf("Raw packed array: %.23b\n", dut->c);

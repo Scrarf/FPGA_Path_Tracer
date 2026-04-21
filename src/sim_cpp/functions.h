@@ -2,10 +2,9 @@
 #include <stdio.h>
 #include <random>
 
-#define INT_MAX 0xFFFFFFFF
-
 #define EXP 8
-#define FRAC 12
+//#define FRAC 12
+#define FRAC 23
 
 uint32_t float_size = EXP + FRAC + 3;
 
@@ -34,14 +33,14 @@ int sign_extend_exp(int exp) {
 }
 
 
-double packed_array_to_double(int p_float) {
-    int exp = sign_extend_exp((p_float >> (FRAC + 1)) & ~(INT_MAX << (EXP + 1)));
+double packed_array_to_double(long long int p_float) {
+    long long int exp = sign_extend_exp((p_float >> (FRAC + 1)) & ~(~0LL << (EXP + 1)));
     //printf("RAW EXPONENT: %d\n", exp);
     
     double value;
-    //printf("RAW VALUE: %b\n", (p_float & ~(INT_MAX << (FRAC + 1))));
+    //printf("RAW VALUE: %b\n", (p_float & ~(~0LL << (FRAC + 1))));
     
-    value = (double)(p_float & ~(INT_MAX << (FRAC + 1))) / (1 << FRAC);
+    value = (double)(p_float & ~(~0LL << (FRAC + 1))) / (1 << FRAC);
     //printf("VALUEEEE: %f\n", value);
     
     value = value * pow(2, exp);
@@ -52,15 +51,15 @@ double packed_array_to_double(int p_float) {
     return value;
 }
 
-uint32_t double_to_packed_array(double val) {
+uint64_t double_to_packed_array(double val) {
 
-    uint32_t sign = (val < 0);
-    int32_t exp = (int)floor(log2(fabs(val)));
-    uint32_t frac = (int)floor((fabs(val) / pow(2.0, exp)) * (1 << (FRAC)));
+    uint64_t sign = (val < 0);
+    int64_t exp = (int)floor(log2(fabs(val)));
+    uint64_t frac = (int)floor((fabs(val) / pow(2.0, exp)) * (1 << (FRAC)));
     //printf("frac: %d\n",frac);
 
 	//printf("coverage_6\n");
-    return (sign << (EXP + FRAC + 2)) | ((exp & ~(INT_MAX << (EXP + 1))) << (FRAC + 1)) | frac;
+    return (sign << (EXP + FRAC + 2)) | ((exp & ~(~0LL << (EXP + 1))) << (FRAC + 1)) | frac;
 }
 
 void double3_to_packed_float3(uint32_t* packed_float3, double dx, double dy, double dz) {
@@ -77,7 +76,7 @@ void double3_to_packed_float3(uint32_t* packed_float3, double dx, double dy, dou
 
 void packed_float3_to_double3(double* x, double* y, double* z, uint32_t packed_float3[]) {
 
-	uint32_t mask = ~(INT_MAX << float_size);
+	uint32_t mask = ~(~0LL << float_size);
 
 	uint32_t iz = (uint32_t)packed_float3[0] & (mask);
 	uint32_t iy = (((uint32_t)packed_float3[0] >> float_size) | ((uint32_t)packed_float3[1] << (32 - float_size))) & mask;

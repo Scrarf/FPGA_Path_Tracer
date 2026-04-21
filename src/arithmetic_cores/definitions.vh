@@ -2,9 +2,9 @@
 `define DEFINITIONS_VH
 
 
-`define frac 12
+//`define frac 12
 `define exp 8
-
+`define frac 23
 
 
 typedef struct packed{

@@ -47,7 +47,7 @@ always @(posedge clk) begin
 	//shift_prod <= prod[(`frac*2)+1] ? prod[(`frac*2+1):1] : prod[(`frac*2):0];
 	//^ 2 identical lines of code logically but the first one is better.
 
-	norm_exp_c <= exp_c + {8'b0, prod[(`frac*2)+1]};
+	norm_exp_c <= exp_c + {`exp'b0, prod[(`frac*2)+1]};
 
 	/*===========================================================*/
 	sign_c_dl2 <= sign_c_dl;
@@ -70,11 +70,11 @@ always @(posedge clk) begin
 	sign_c_dl4 <= sign_c_dl3;
 	norm_exp_c_dl3 <= norm_exp_c_dl2;
 
-	frac_c_rounded <= prod_trunk_dl + {12'b0, round_up};
+	frac_c_rounded <= prod_trunk_dl + {`frac'b0, round_up};
 
 	/*===========================================================*/
 	c.sign <= sign_c_dl4;
-	c.exp <= norm_exp_c_dl3 + {8'b0, frac_c_rounded[`frac+1]};
+	c.exp <= norm_exp_c_dl3 + {`exp'b0, frac_c_rounded[`frac+1]};
 
 	//c.frac <= {frac_c_rounded >> frac_c_rounded[`frac+1]}[`frac:0]; //works only in verilator and not yosys
 	c.frac <= (`frac+1)'(frac_c_rounded >> frac_c_rounded[`frac+1]);
