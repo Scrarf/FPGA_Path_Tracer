@@ -28,8 +28,8 @@ reg [`frac+1:0] frac_normalized_trunk_rounded;
 
 reg round_up, round, guard, sticky;
 
-sixteen_bit_lzc LZC(.clk(clk), .array(frac_combined_abs[(`frac*2)+3:(`frac*2)-12]), .value(lzc));
-reg [3:0] lzc;
+lzc LZC(.clk(clk), .array(frac_combined_abs[(`frac*2)+3 -: `frac+1]), .value(lzc));
+reg [4:0] lzc;
 
 wire exp_comparison = $signed(a.exp) > $signed(b.exp);
 //11 pipeline stages
@@ -94,7 +94,7 @@ always @(posedge clk) begin
 	sign_c_dl6 <= sign_c_dl5;
 
 	/*===========================================================*/
-	exp_greater_normalized <= (exp_greater_dl6 - {5'b0, lzc}) + 2;
+	exp_greater_normalized <= (exp_greater_dl6 - {4'b0, lzc}) + 2;
 	
 	//frac_normalized <= {frac_combined_abs_dl << lzc}[(`frac*2)+3:(`frac+3)];
 	//frac_normalized <= frac_combined_abs_dl[(`frac*2)+3-lzc:(`frac+3)-lzc];
@@ -109,7 +109,6 @@ always @(posedge clk) begin
 	guard <= frac_combined_abs_dl[`frac+2-lzc];
 	round <= frac_combined_abs_dl[`frac+1-lzc];
 	sticky <= |(`frac+1)'(frac_combined_abs_dl << lzc);
-
 	
 	sign_c_dl7 <= sign_c_dl6;
 

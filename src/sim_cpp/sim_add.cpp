@@ -12,15 +12,15 @@
 
 #define CLOCK_HIGH (dut->clk)
 
-int SIM_STEPS = 10000000;
+int SIM_STEPS = 100000000;
 int PIPELINE_DELAY = 11;
 
 struct expected_result {
     int time;
-    double a, b, c;
+    float a, b, c;
 };
 
-static double val_a, val_b;
+static float val_a, val_b;
 
 u_float a, b;
 
@@ -45,11 +45,11 @@ void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count
     dut->clk = !dut->clk;
 
     if (CLOCK_HIGH) {
-        val_a = random_double(-10, 10);
-        val_b = random_double(-10, 10);
+        val_a = random_double(-1e-12, -1e-7);
+        val_b = random_double(1e-7, 1e-12);
 
-        //val_a = -7.9996;
-        //val_b = -1.8995;
+        //val_a = 1.0000152587890625;
+        //val_b = -1.0;
 
         dut->a = double_to_packed_array(val_a);
         dut->b = double_to_packed_array(val_b);
@@ -75,8 +75,8 @@ void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count
 
         
 
-        if (fabs(expected.c - got) > 0.1) {
-            printf("Mismatch at t=%d: %.4f + %.4f = %.4f (got %.4f)\n",
+        if (fabs(expected.c - got) > 1e-5) {
+            printf("Mismatch at t=%d: %.8f + %.8f = %.32f (got %.32f)\n",
                    contextp->time(), expected.a, expected.b, expected.c, got);
             //printf("Raw packed array: %.23b\n", dut->c);
             (*error_count)++;

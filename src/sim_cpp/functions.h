@@ -33,8 +33,11 @@ int sign_extend_exp(int exp) {
 }
 
 
-double packed_array_to_double(long long int p_float) {
-    long long int exp = sign_extend_exp((p_float >> (FRAC + 1)) & ~(~0LL << (EXP + 1)));
+double packed_array_to_double(int p_float) {
+	//int frac_raw = p_float & ~(~0LL << (FRAC + 1));
+	//printf("frac %b\n", frac_raw);
+
+    int exp = sign_extend_exp((p_float >> (FRAC + 1)) & ~(~0LL << (EXP + 1)));
     //printf("RAW EXPONENT: %d\n", exp);
     
     double value;
