@@ -7,20 +7,27 @@ Leading zero counter.
 module lzc (
     input wire clk,
     input wire [`frac:0] array,
-    output reg [4:0] value
+    output reg [$clog2(`frac+1)-1:0] value
 );
 
-    wire [11:0] q;
-    wire [5:0] a;
+    wire [((`frac+1)/4)*2-1:0] q;
+    wire [(`frac+1)/4-1:0] a;
     wire [2:0] q2;
     wire [1:0] out;
 
-    four_bit_LZC LZC_0(.x(array[3:0]), .q(q[1:0]), .a(a[0]));
-    four_bit_LZC LZC_1(.x(array[7:4]), .q(q[3:2]), .a(a[1]));
-    four_bit_LZC LZC_2(.x(array[11:8]), .q(q[5:4]), .a(a[2]));
-    four_bit_LZC LZC_3(.x(array[15:12]), .q(q[7:6]), .a(a[3]));
-    four_bit_LZC LZC_4(.x(array[19:16]), .q(q[9:8]), .a(a[4]));
-    four_bit_LZC LZC_5(.x(array[23:20]), .q(q[11:10]), .a(a[5]));
+	generate
+	genvar i;
+	for (i = 0; i < ((`frac+1)/4); i++) begin
+		four_bit_LZC LZC_(.x(array[((i+1)*4)-1:i*4]), .q(q[((i+1)*2)-1:i*2]), .a(a[i]));
+	end
+	endgenerate
+
+    //four_bit_LZC LZC_0(.x(array[3:0]), .q(q[1:0]), .a(a[0]));
+    //four_bit_LZC LZC_1(.x(array[7:4]), .q(q[3:2]), .a(a[1]));
+    //four_bit_LZC LZC_2(.x(array[11:8]), .q(q[5:4]), .a(a[2]));
+    //four_bit_LZC LZC_3(.x(array[15:12]), .q(q[7:6]), .a(a[3]));
+    //four_bit_LZC LZC_4(.x(array[19:16]), .q(q[9:8]), .a(a[4]));
+    //four_bit_LZC LZC_5(.x(array[23:20]), .q(q[11:10]), .a(a[5]));
 
     six_bit_LZE LZE_0(.x(a), .q(q2));
 
