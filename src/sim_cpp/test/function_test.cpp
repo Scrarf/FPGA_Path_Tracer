@@ -16,7 +16,7 @@ int main() {
 		}
 	
 	
-		uint32_t arr[3];
+		uint32_t arr[4] = {0};
 	
 		double3_to_packed_float3(arr, rand[0], rand[1], rand[2]);
 	
@@ -31,6 +31,13 @@ int main() {
 		//	printf("yay!\n");
 		//}
 
+	}
+
+	double vals[] = {56.468025, 56.525738, 0.000053, 0.000000};
+	for (int i = 0; i < 4; i++) {
+	    uint64_t packed = double_to_packed_array(vals[i]);
+	    double rt = packed_array_to_double(packed);
+	    printf("in: %.6f packed: %016llx out: %.6f\n", vals[i], packed, rt);
 	}
 	
 	return 0;

@@ -10,14 +10,15 @@ YOSYS_JSON_DIR = yosys_json/
 SIM_SKELETON_DIR = src/sim_cpp/verilator_skeleton/verilator_skeleton.cpp 
 VERILOG_DEPENDENCY_DIR = -y src/arithmetic_cores \
 						 -y src/fifo \
-						 -y src/ray_triangle_intersection/vector_operations +libext+.sv
+						 -y src/ray_triangle_intersection/vector_operations +libext+.sv \
+						 -y src/bvh_construction
 
 clean:
 	rm -f *.vvp *.vcd *.json
 
 
 verilate_mult:
-	verilator -Wall --trace --exe  --build -cc $(VERILOG_DEPENDENCY_DIR) \
+	verilator -Wall --trace --exe --build -cc $(VERILOG_DEPENDENCY_DIR) \
 	src/sim_cpp/sim_mult.cpp $(SIM_SKELETON_DIR) \
 	src/arithmetic_cores/mult.sv \
 	src/arithmetic_cores/definitions.vh \
@@ -29,6 +30,15 @@ nextpnr_mult:
 	nextpnr-ecp5 --$(LUT_COUNT) --package $(PACKAGE) --speed $(SPEED_GRADE) \
 	--json $(YOSYS_JSON_DIR)yosys_mult.json \
 	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_mult.log
+
+
+verilate_bounds:
+	verilator -Wall --trace --exe --build -cc $(VERILOG_DEPENDENCY_DIR) \
+	src/sim_cpp/sim_bounds.cpp $(SIM_SKELETON_DIR)\
+	src/bvh_construction/bounds.sv \
+	src/arithmetic_cores/definitions.vh \
+	--top-module bounds
+	obj_dir/Vbounds
 
 
 
@@ -115,4 +125,7 @@ verilate_cross_product:
 	src/ray_triangle_intersection/vector_operations/cross_product.sv \
 	--top-module cross_product
 	obj_dir/Vcross_product
+
+
+
 

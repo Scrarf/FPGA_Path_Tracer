@@ -33,7 +33,9 @@ int sign_extend_exp(int exp) {
 }
 
 
-double packed_array_to_double(int p_float) {
+double packed_array_to_double(uint64_t p_float) {
+	//if (p_float == 0) return 0.0;
+
 	//int frac_raw = p_float & ~(~0LL << (FRAC + 1));
 	//printf("frac %b\n", frac_raw);
 
@@ -55,7 +57,8 @@ double packed_array_to_double(int p_float) {
 }
 
 uint64_t double_to_packed_array(double val) {
-
+	//if (val == 0.0) return 0;
+	
     uint64_t sign = (val < 0);
     int64_t exp = (int)floor(log2(fabs(val)));
     uint64_t frac = (int)floor((fabs(val) / pow(2.0, exp)) * (1 << (FRAC)));
@@ -65,29 +68,34 @@ uint64_t double_to_packed_array(double val) {
     return (sign << (EXP + FRAC + 2)) | ((exp & ~(~0LL << (EXP + 1))) << (FRAC + 1)) | frac;
 }
 
-void double3_to_packed_float3(uint32_t* packed_float3, double dx, double dy, double dz) {
-	
-	uint32_t x = double_to_packed_array(dx);
-	uint32_t y = double_to_packed_array(dy);
-	uint32_t z = double_to_packed_array(dz);
-	
-	packed_float3[0] = z | (y << float_size);
-	packed_float3[1] = (y >> (32 - float_size)) | (x << (32 - (2 * (32 - float_size))));
-	packed_float3[2] = x >> (2 * (32 - float_size));
-	return;
+void write_bits(uint32_t* arr, int offset, uint64_t val, int width) {
+    for (int i = 0; i < width; i++) {
+        int bit = offset + i;
+        if ((val >> i) & 1)
+            arr[bit / 32] |= (1u << (bit % 32));
+        else
+            arr[bit / 32] &= ~(1u << (bit % 32));
+    }
 }
 
-void packed_float3_to_double3(double* x, double* y, double* z, uint32_t packed_float3[]) {
+uint64_t read_bits(uint32_t* arr, int offset, int width) {
+    uint64_t val = 0;
+    for (int i = 0; i < width; i++) {
+        int bit = offset + i;
+        if ((arr[bit / 32] >> (bit % 32)) & 1)
+            val |= (1ULL << i);
+    }
+    return val;
+}
 
-	uint32_t mask = ~(~0LL << float_size);
+void double3_to_packed_float3(uint32_t* arr, double dx, double dy, double dz) {
+    write_bits(arr, 0,           double_to_packed_array(dz), float_size);
+    write_bits(arr, float_size,  double_to_packed_array(dy), float_size);
+    write_bits(arr, float_size*2,double_to_packed_array(dx), float_size);
+}
 
-	uint32_t iz = (uint32_t)packed_float3[0] & (mask);
-	uint32_t iy = (((uint32_t)packed_float3[0] >> float_size) | ((uint32_t)packed_float3[1] << (32 - float_size))) & mask;
-	uint32_t ix = ((uint32_t)packed_float3[1] >> ((2 * float_size) - 32)) | (uint32_t)packed_float3[2] << (32 - ((2 * float_size) - 32));
-
-	*x = packed_array_to_double(ix);
-	*y = packed_array_to_double(iy);
-	*z = packed_array_to_double(iz);
-
-	return;
+void packed_float3_to_double3(double* dx, double* dy, double* dz, uint32_t* arr) {
+    *dz = packed_array_to_double(read_bits(arr, 0,            float_size));
+    *dy = packed_array_to_double(read_bits(arr, float_size,   float_size));
+    *dx = packed_array_to_double(read_bits(arr, float_size*2, float_size));
 }

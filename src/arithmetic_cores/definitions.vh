@@ -6,6 +6,9 @@
 `define exp 8
 `define frac 23
 
+`define f_size (`frac + `exp + 1)
+
+`define f3_size (`f_size * 3)
 
 typedef struct packed{
 	logic sign;
@@ -19,6 +22,11 @@ typedef struct packed {
 	p_float z;
 } p_float3;
 
+typedef struct packed {
+	p_float3 a;
+	p_float3 b;
+	p_float3 c;
+} triangle;
 
 `define mult(base_name, in_a, in_b) \
 	p_float base_name``_net; \
