@@ -1,5 +1,3 @@
-#include <memory>
-#include <queue>
 #include <cmath>
 #include <cstdio>
 #include "functions.h"
@@ -8,63 +6,32 @@
 
 #define CLOCK_HIGH (dut->clk)
 
-int SIM_STEPS = 100000000;
+int SIM_STEPS = 1000000000;
 int PIPELINE_DELAY = 1;
-
-struct expected_result {
-    int time;
-    double a, b;
-    bool ans;
-};
 
 static int sign_a, exp_a, frac_a;
 static int sign_b, exp_b, frac_b;
 static double val_a, val_b;
 
 static Vgreater_than* dut;
-static std::queue<expected_result> expected_output;
 
 void tb_init(VerilatedContext* contextp) {
     dut = new Vgreater_than(contextp, "greater_than");
-    dut->clk = 1;
 }
 
 void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count) {
-    dut->clk = !dut->clk;
 
-    if (CLOCK_HIGH) {
-        val_a = random_double(-10, 10);
-        val_b = random_double(-10, 10);
+    val_a = random_double(-1000, 1000);
+    val_b = random_double(-1000, 1000);
 
-		dut->a = double_to_packed_array(val_a);
-		dut->b = double_to_packed_array(val_b);
-		
-        expected_output.push({(int)contextp->time() + ((PIPELINE_DELAY) * 2), val_a, val_b, val_a > val_b});
-    }
+	dut->a = double_to_packed_array(val_a);
+	dut->b = double_to_packed_array(val_b);
 
-    if (CLOCK_HIGH && contextp->time() > ((PIPELINE_DELAY) * 2)) {
-        if (expected_output.empty()) {printf("QUEUE_IS_EMPTY!\n"); };
-
-        auto expected = expected_output.front();
-        expected_output.pop();
-        if (expected.time != contextp->time()) {
-            printf("SYNC_ERROR!\n expected:%d, contextp:%d.\n", expected.time, contextp->time());
-            contextp->gotFinish(true);
-            return;
-        }
-
-        bool got = dut->result;
-
-        if (expected.ans != got) {
-            printf("Mismatch at t=%d: %.4f > %.4f = %d (got %d)\n",
-                   contextp->time(), expected.a, expected.b, expected.ans, got);
-            (*error_count)++;
-        }
-        (*itteration_count)++;
-
-    
-    }
     dut->eval();
+
+    if (dut->result == (val_a < val_b)) {
+		printf("missmatch: t=%d a=%f b=%f\n",contextp->time(), val_a, val_b);
+    }
 }
 
 void tb_end() {

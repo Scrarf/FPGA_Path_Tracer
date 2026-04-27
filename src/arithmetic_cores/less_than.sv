@@ -1,17 +1,10 @@
 `include "src/arithmetic_cores/definitions.vh"
 
-/*
-Tested but gives error_rate: 0.0022% due to precision errors.
-Works with both packed and unpacked FP21s.
-*/
-
 module less_than (
-	input wire clk,
-
 	input p_float a,
 	input p_float b,
 
-	output reg result
+	output wire result
 );
 
 /*
@@ -19,12 +12,12 @@ Note: actually now this one takes less
 hardware than greater_than.
 */
 
-//1 pipeline stage
-always @(posedge clk) begin
-	result <= ((a.sign ^ b.sign) ? a.sign :
-		 	  (($signed(a.exp) < $signed(b.exp)) ? 1'b1 :
-		 	  ((a.frac < b.frac) & ($signed(a.exp) == $signed(b.exp)))) ^ (a.sign & b.sign));
-end
+//combinatorial logic
+
+assign result = ((a.sign ^ b.sign) ? a.sign :
+		 		(($signed(a.exp) < $signed(b.exp)) ? 1'b1 :
+				((a.frac < b.frac) & ($signed(a.exp) == $signed(b.exp)))) ^ (a.sign & b.sign));
+
 
 endmodule
 
