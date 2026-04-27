@@ -32,16 +32,6 @@ nextpnr_mult:
 	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_mult.log
 
 
-verilate_bounds:
-	verilator -Wall --trace --exe --build -cc $(VERILOG_DEPENDENCY_DIR) \
-	src/sim_cpp/sim_bounds.cpp $(SIM_SKELETON_DIR)\
-	src/bvh_construction/bounds.sv \
-	src/arithmetic_cores/definitions.vh \
-	--top-module bounds
-	obj_dir/Vbounds
-
-
-
 verilate_add:
 	verilator -Wall --trace --exe --build -cc $(VERILOG_DEPENDENCY_DIR) \
 	src/sim_cpp/sim_add.cpp $(SIM_SKELETON_DIR)\
@@ -127,5 +117,22 @@ verilate_cross_product:
 	obj_dir/Vcross_product
 
 
+verilate_bounds:
+	verilator -Wall --trace --exe --build -cc $(VERILOG_DEPENDENCY_DIR) \
+	src/sim_cpp/sim_bounds.cpp $(SIM_SKELETON_DIR)\
+	src/bvh_construction/bounds.sv \
+	src/arithmetic_cores/definitions.vh \
+	--top-module bounds
+	obj_dir/Vbounds
+yosys_bounds:
+	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)yosys_bounds.json' \
+	src/bvh_construction/bounds.sv src/arithmetic_cores/greater_than.sv src/arithmetic_cores/less_than.sv
+nextpnr_bounds:
+	nextpnr-ecp5 --$(LUT_COUNT) --package $(PACKAGE) --speed $(SPEED_GRADE) \
+	--json $(YOSYS_JSON_DIR)yosys_bounds.json \
+	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_bounds.log
 
 
+
+
+		

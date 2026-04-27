@@ -1,5 +1,5 @@
-#include <memory>
-#include <queue>
+
+
 #include <cmath>
 #include <cstdio>
 #include "functions.h"
@@ -11,17 +11,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//#define ENABLE_DUMP
+#define ENABLE_DUMP
 
-int PIPELINE_DELAY = 2;
+int PIPELINE_DELAY = 1;
 int SIM_STEPS = 10;
 
-struct expected_result {
-    int time;
-    double a, b, c;
-};
-
-static double val_a, val_b;
 
 Vbounds* dut;
 
@@ -43,12 +37,11 @@ uint32_t triangle_count;
 void tb_init(VerilatedContext* contextp) {
     dut = new Vbounds(contextp, "bounds");
     
-    dut->rst = 1;
-    dut->clk = 0; dut->eval();
-    dut->clk = 1; dut->eval();  // rst=1 registered here
-    dut->clk = 0; dut->eval();
-    dut->rst = 0;
-    dut->clk = 1; dut->eval();  // rst=0 registered here
+	//dut->rst = 1;
+	dut->clk = 1; dut->eval();
+	dut->clk = 0; dut->eval();  // rst=1 registered here
+	dut->clk = 1; dut->eval();
+	dut->clk = 0; dut->eval();
 
     #ifdef ENABLE_DUMP
     dut->trace(tfp, 99);
@@ -95,58 +88,84 @@ double test_min_x = 1e9,  test_min_y = 1e9,  test_min_z = 1e9;
 double test_max_x = -1e9, test_max_y = -1e9, test_max_z = -1e9;
 
 uint64_t px, py, pz;
-	
+double x, y, z;
+
+uint32_t valid;
+
+uint32_t flt_history[16][4];
+double double_history[16][3];
+
+void print_bits(const char* label, uint32_t* arr, int offset, int width) {
+    uint64_t val = read_bits(arr, offset, width);
+    printf("%s: ", label);
+    for (int i = width-1; i >= 0; i--) {
+        printf("%d", (int)((val >> i) & 1));
+        if (i % 4 == 0 && i != 0) printf(" ");
+    }
+    printf(" (%f)\n", packed_array_to_double(val));
+}
+
 void tb_eval(VerilatedContext* contextp, int* error_count, int* itteration_count) {
 
-	if (steps < triangle_count*3) {
-		dut->valid = 1;
-		double x = triangles[steps/3].v[steps%3][0];
-		double y = triangles[steps/3].v[steps%3][1];
-		double z = triangles[steps/3].v[steps%3][2];
-
-		uint64_t px = double_to_packed_array(x);
-		x = packed_array_to_double(px);
-
-		uint64_t py = double_to_packed_array(y);
-		y = packed_array_to_double(py);
-
-		uint64_t pz = double_to_packed_array(z);
-		z = packed_array_to_double(pz);
-
-		double3_to_packed_float3((uint32_t*)&(dut->flt), x, y, z);
-		
-		if (x < test_min_x) {
-			test_min_x = x;
-		}
-		if (y < test_min_y) {
-			test_min_y = y;
-		}
-		if (z < test_min_z) {
-			test_min_z = z;
-		}
-		
-		if (x > test_max_x) {
-			test_max_x = x;
-		}
-		if (y > test_max_y) {
-			test_max_y = y;
-		}
-		if (z > test_max_z) {
-			test_max_z = z;
-		}
+	if (steps == 0) {
+		dut->rst = 1;
 	}
 	else {
-		dut->valid = 0;
+		dut->rst = 0;
 	}
-	
-	
-	dut->clk = 0;
-	dut->eval();
-	dut->clk = 1;
-	dut->eval();
 
+	if (steps < triangle_count*3) {
+		
+		x = triangles[steps/3].v[steps%3][0];
+		y = triangles[steps/3].v[steps%3][1];
+		z = triangles[steps/3].v[steps%3][2];
+
+		double_history[steps%16][0] = x;
+		double_history[steps%16][1] = y;
+		double_history[steps%16][2] = z;
+		
+		//uint64_t px = double_to_packed_array(x);
+		//x = packed_array_to_double(px);
+		//uint64_t py = double_to_packed_array(y);
+		//y = packed_array_to_double(py);
+		//uint64_t pz = double_to_packed_array(z);
+		//z = packed_array_to_double(pz);
+		
+		dut->valid = 1;
+		double3_to_packed_float3((uint32_t*)&(dut->flt), x, y, z);
+
+		double3_to_packed_float3(flt_history[steps%16], x, y, z);
+		
+		valid = (valid << 1) | 1;
+		dut->clk = 1; dut->eval();
+		dut->clk = 0; dut->eval();
+
+		if (x < test_min_x) {test_min_x = x;}
+		if (y < test_min_y) {test_min_y = y;}
+		if (z < test_min_z) {test_min_z = z;}
+		if (x > test_max_x) {test_max_x = x;}
+		if (y > test_max_y) {test_max_y = y;}
+		if (z > test_max_z) {test_max_z = z;}
+		
+	}
+	if ((valid >> PIPELINE_DELAY) & 1) {
+		double qx, qy, qz;
+		packed_float3_to_double3(&qx, &qy, &qz, flt_history[(steps - PIPELINE_DELAY) % 16]);
+		
+		double min_x, min_y, min_z;
+		packed_float3_to_double3(&min_x, &min_y, &min_z, (uint32_t*)&(dut->min));
+		
+		if (min_x > qx + 0.00001) {
+		    printf("MISS step=%d: min_x=%f but just processed input=%f\n",
+		        steps, min_x, qx);
+		    printf("RAW DATA:\n");
+		    print_bits("min.x  ", (uint32_t*)&(dut->min), float_size*2, float_size);
+		    print_bits("input.x", flt_history[(steps - PIPELINE_DELAY) % 16], float_size*2, float_size);
+		}
+	} 
+	
 	if (steps >= triangle_count*3+PIPELINE_DELAY) {
-			contextp->gotFinish(true);
+		contextp->gotFinish(true);
 	}
 
 	steps++;
