@@ -133,6 +133,17 @@ nextpnr_bounds:
 	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)nextpnr_bounds.log
 
 
-
-
-		
+verilate_compute_core:
+	verilator --exe --trace --build --cc $(VERILATOR_DEPENDENCY_DIR) \
+	src/sim_cpp/sim_core.cpp \
+	src/compute_core/core.sv \
+	src/arithmetic_cores/definitions.vh \
+	--top-module core
+	obj_dir/Vcore
+yosys_compute_core:
+	yosys -p 'synth_ecp5 -json $(YOSYS_JSON_DIR)core.json' \
+	src/compute_core/core.sv
+nextpnr_compute_core:
+	nextpnr-ecp5 --$(LUT_COUNT) --package $(PACKAGE) --speed $(SPEED_GRADE) \
+	--json $(YOSYS_JSON_DIR)core.json \
+	--freq $(FREQ) 2>&1 | tee $(TIMING_DIR)core.log
