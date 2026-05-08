@@ -2,7 +2,10 @@
 
 /*
 instruction template:
-	<instruction> <dst> <src1> <src2>
+	MOV: <dst> <imidiate 8bit value> (probably will change this later)
+	ADD/SUB/OR/AND etc... <dst> <src1> <src2>
+	ST <dst(address)> <src(register)>
+	LD <dst(register)> <src(address)>
 */
 
 module core (
@@ -13,8 +16,9 @@ module core (
 
 (* dont_touch *) reg [31:0] r [7:0]/* verilator public_flat_rw */;
 
-
 (* dont_touch *) reg [31:0] IMEM [255:0]/* verilator public_flat_rw */;
+
+(* dont_touch *) reg [31:0] MMIO [255:0]/* verilator public_flat_rw */;
 
 parameter NOP = 8'h00;
 parameter MOV = 8'h01;
@@ -28,6 +32,9 @@ parameter SR = 8'h07;
 
 parameter ADD = 8'h08;
 parameter SUB = 8'h09;
+
+parameter ST = 8'h0A;
+parameter LD = 8'h0B;
 
 (* dont_touch *) reg [31:0] ins;
 
@@ -43,14 +50,20 @@ always @(posedge clk) begin
 		case (ins[31:24])
 		NOP:;
 		MOV: r[ins[18:16]] <= {24'b0, ins[15:8]};
+		
 		NOT: r[ins[18:16]] <= ~r[ins[10:8]];
 		AND: r[ins[18:16]] <= r[ins[10:8]] & r[ins[2:0]];
 		OR: r[ins[18:16]] <= r[ins[10:8]] | r[ins[2:0]];
 		XOR: r[ins[18:16]] <= r[ins[10:8]] ^ r[ins[2:0]];
 		SL: r[ins[18:16]] <= r[ins[10:8]] << r[ins[2:0]];
 		SR: r[ins[18:16]] <= r[ins[10:8]] >> r[ins[2:0]];
+		
 		ADD: r[ins[18:16]] <= r[ins[10:8]] + r[ins[2:0]];
 		SUB: r[ins[18:16]] <= r[ins[10:8]] - r[ins[2:0]];
+
+		ST: MMIO[ins[23:16]] <= r[ins[10:8]];
+		LD: r[ins[18:16]] <= MMIO[ins[15:8]];
+		
 		default:;
 		endcase	
 	end

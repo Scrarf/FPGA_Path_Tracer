@@ -15,7 +15,11 @@ void generate_code() {
 	
 	code[1] = 0x08000100;
 	code[2] = 0x08010100;
-	code[3] = 0x01070100;
+
+	code[3] = 0x01030900;
+	code[4] = 0x0A000300;
+
+	code[9] = 0x01070100;
 	
 	return;
 }
@@ -60,6 +64,7 @@ int main(int argc, char** argv) {
         
     }
 
+	printf("MMIO[0]: %d\n", dut->rootp->core__DOT__MMIO[0]);
 
 	delete(dut);
 
